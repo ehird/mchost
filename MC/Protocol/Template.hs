@@ -25,10 +25,10 @@ data FieldInfo = FieldInfo
   }
 
 packet :: Word8 -> String -> [FieldInfo] -> PacketInfo
-packet ptype strName fields = Packet ptype (mkName strName) fields
+packet ptype strName = Packet ptype (mkName strName)
 
 packetType :: String -> [PacketInfo] -> Q [Dec]
-packetType strName packets = do
+packetType strName packets =
   sequence [ dataD (return []) name [] (map packetCon packets) [''Eq, ''Show]
            , instanceD (return []) (appT (conT ''Serialize) (conT name))
              [ funD 'SE.get [clause [] (normalB (getExp packets)) []]
