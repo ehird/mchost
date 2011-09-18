@@ -55,7 +55,7 @@ packetType strName packets =
           where ptypeE = litE (integerL (fromIntegral ptype))
                 putExp xs = doE $
                  noBindS (appE (varE 'SE.putWord8) ptypeE) :
-                 map (\(fname,put) -> noBindS $ appE put (varE fname)) xs
+                 [ noBindS $ appE put (varE fname) | (fname,put) <- xs ]
 
 unknownPacketType :: Word8 -> Get a
 unknownPacketType t = fail $ "Unknown packet type 0x" ++ showHex t ""
