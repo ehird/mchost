@@ -1,4 +1,4 @@
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TemplateHaskell, MagicHash #-}
 
 module MC.Protocol.Template
   ( PacketInfo
@@ -14,6 +14,7 @@ import qualified Data.Serialize as SE
 import Control.Applicative
 import Control.Monad
 import Language.Haskell.TH
+import GHC.Word (Word8(..))
 
 data PacketInfo = Packet Word8 Name [FieldInfo]
 
@@ -40,13 +41,14 @@ packetType strName packets =
         packetField fi = (,) IsStrict <$> fieldType fi
         getExp xs = do
           typeVar <- newName "t"
-          doE [ bindS (varP typeVar) $ varE 'SE.getWord8
-              , noBindS . caseE (varE typeVar) $
+          unboxedTypeVar <- newName "t#"
+          doE [ bindS (asP typeVar (conP 'W8# [varP unboxedTypeVar])) $ varE 'SE.getWord8
+              , noBindS . caseE (varE unboxedTypeVar) $
                   map getClause xs ++
                   [ match wildP (normalB (appE (varE 'unknownPacketType) (varE typeVar))) [] ]
               ]
           where getClause (Packet ptype pname fields) = match ptypeP (normalB getClauseExp) []
-                  where ptypeP = litP (integerL (fromIntegral ptype))
+                  where ptypeP = litP (wordPrimL (fromIntegral ptype))
                         getClauseExp = do
                           getFields <- forM fields $ \fi -> flip (,) (fieldGet fi) <$> newName (fieldName fi)
                           doE $
