@@ -28,6 +28,7 @@ import qualified Data.Text.Encoding as TE
 import qualified Data.Text.Encoding.Error as TEE
 import Data.Serialize (Get, Putter)
 import qualified Data.Serialize as SE
+import qualified Data.Serialize.IEEE754 as SE754
 import Control.Applicative
 import Language.Haskell.TH
 
@@ -70,10 +71,20 @@ long :: String -> FieldInfo
 long = simpleField [t| Int64 |]
 
 float :: String -> FieldInfo
-float = simpleField [t| Float |]
+float name = FieldInfo
+  { fieldType = [t| Float |]
+  , fieldName = name
+  , fieldGet  = [| SE754.getFloat32be |]
+  , fieldPut  = [| SE754.putFloat32be |]
+  }
 
 double :: String -> FieldInfo
-double = simpleField [t| Double |]
+double name = FieldInfo
+  { fieldType = [t| Double |]
+  , fieldName = name
+  , fieldGet  = [| SE754.getFloat64be |]
+  , fieldPut  = [| SE754.putFloat64be |]
+  }
 
 string :: String -> FieldInfo
 string name = FieldInfo
