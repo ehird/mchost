@@ -12,7 +12,6 @@ import Data.Word
 import Data.Serialize (Serialize, Get)
 import qualified Data.Serialize as SE
 import Control.Applicative
-import Control.Monad
 import Language.Haskell.TH
 import GHC.Word (Word8(..))
 
@@ -50,17 +49,19 @@ packetType strName packets =
           where getClause (Packet ptype pname fields) = match ptypeP (normalB getClauseExp) []
                   where ptypeP = litP (wordPrimL (fromIntegral ptype))
                         getClauseExp = do
-                          getFields <- forM fields $ \fi -> flip (,) (fieldGet fi) <$> newName (fieldName fi)
+                          vars <- mapM (newName . fieldName) fields
+                          let gets = map fieldGet fields
                           doE $
-                            [ bindS (varP fname) get | (fname,get) <- getFields ] ++
-                            [ noBindS $ appE (varE 'return) (foldl appE (conE pname) (map (varE . fst) getFields)) ]
+                            [ bindS (varP var) get | (var,get) <- zip vars gets ] ++
+                            [ noBindS $ appE (varE 'return) (foldl appE (conE pname) (map varE vars)) ]
         putClause (Packet ptype pname fields) = do
-          putFields <- forM fields $ \fi -> flip (,) (fieldPut fi) <$> newName (fieldName fi)
-          clause [conP pname (map (varP . fst) putFields)] (normalB (putExp putFields)) []
+          vars <- mapM (newName . fieldName) fields
+          let puts = map fieldPut fields
+          clause [conP pname (map varP vars)] (normalB (putExp vars puts)) []
           where ptypeE = litE (integerL (fromIntegral ptype))
-                putExp xs = doE $
+                putExp vars puts = doE $
                  noBindS (appE (varE 'SE.putWord8) ptypeE) :
-                 [ noBindS $ appE put (varE fname) | (fname,put) <- xs ]
+                 [ noBindS $ appE put (varE var) | (var,put) <- zip vars puts ]
 
 unknownPacketType :: Word8 -> Get a
 unknownPacketType t = fail $ "Unknown packet type 0x" ++ showHex t ""
