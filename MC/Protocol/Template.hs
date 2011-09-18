@@ -47,8 +47,11 @@ packetType strName packets =
               ]
           where getClause (Packet ptype pname fields) = match ptypeP (normalB getClauseExp) []
                   where ptypeP = litP (integerL (fromIntegral ptype))
-                        getClauseExp = foldl apE (appE (varE 'pure) (conE pname)) . map fieldGet $ fields
-                        apE f x = infixE (Just f) (varE '(<*>)) (Just x)
+                        getClauseExp = do
+                          getFields <- forM fields $ \fi -> flip (,) (fieldGet fi) <$> newName (fieldName fi)
+                          doE $
+                            [ bindS (varP fname) get | (fname,get) <- getFields ] ++
+                            [ noBindS $ appE (varE 'return) (foldl appE (conE pname) (map (varE . fst) getFields)) ]
         putClause (Packet ptype pname fields) = do
           putFields <- forM fields $ \fi -> flip (,) (fieldPut fi) <$> newName (fieldName fi)
           clause [conP pname (map (varP . fst) putFields)] (normalB (putExp putFields)) []
