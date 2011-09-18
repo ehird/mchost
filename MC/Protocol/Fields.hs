@@ -33,12 +33,12 @@ import Language.Haskell.TH
 
 getTextUCS2be :: Get Text
 getTextUCS2be = do
-  len <- fromIntegral <$> SE.getWord64be
-  TE.decodeUtf16BEWith TEE.ignore <$> SE.getBytes len
+  len <- SE.get :: Get Word16
+  TE.decodeUtf16BEWith TEE.ignore <$> SE.getBytes (fromIntegral len * 2)
 
 putTextUCS2be :: Putter Text
 putTextUCS2be text = do
-  SE.putWord64be . fromIntegral $ T.length text
+  SE.put (fromIntegral (T.length text) :: Word16)
   SE.putByteString $ TE.encodeUtf16BE text
 
 simpleField :: TypeQ -> String -> FieldInfo
