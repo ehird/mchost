@@ -35,7 +35,13 @@ packetType "ClientPacket"
     , PF.entityID "target"
     , PF.bool "isLeftClick"
     ]
-  , packet 0x09 "CRespawn" [] -- dunno
+  , packet 0x09 "CRespawn"
+    [ PF.byte "world" -- probably should be WorldID
+    , PF.byte "unknown" -- might be a bool; always 1, apparently
+    , PF.bool "isCreative"
+    , PF.short "worldHeight"
+    , PF.long "mapSeed" -- should probably have its own type too
+    ]
   , packet 0x0A "CPlayer"
     [ PF.bool "isOnGround" ]
   , packet 0x0B "CPlayerPosition"
