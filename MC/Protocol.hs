@@ -81,6 +81,10 @@ packetType "ClientPacket"
     ]
   , packet 0x10 "CHoldingChange"
     [ PF.short "slot" ]
+  , packet 0x12 "CAnimation"
+    [ PF.entityID "entity"
+    , PF.byte "animation" -- as above, should be PF.animation
+    ]
   , packet 0x13 "CEntityAction"
     [ PF.entityID "entity"
     , PF.byte "action" -- as above, should be PF.action
