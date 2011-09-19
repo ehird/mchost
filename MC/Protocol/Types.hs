@@ -20,6 +20,7 @@ module MC.Protocol.Types
   , HeldItem(..)
   , Block(..)
   , Placement(..)
+  , Equipment(..)
   , ServerHandshake(..)
   ) where
 
@@ -143,6 +144,27 @@ instance Serialize Placement where
       else Place <$> SE.get
   put EmptyHanded = SE.put (-1 :: Int16)
   put (Place heldItem) = SE.put heldItem
+
+-- FIXME: Annoying duplication with HeldItem and Placement, especially
+-- since -1 is used to denote "nothing held" in both
+
+data Equipment = NothingEquipped | Equipped !Item deriving (Eq, Show)
+
+instance Serialize Equipment where
+  get = do
+    let getShort = SE.get :: Get Int16
+    sh <- SE.lookAhead getShort
+    if sh < 0
+      then getShort >> return NothingEquipped
+      else Equipped <$> (Item <$> SE.get <*> SE.get)
+  put NothingEquipped = do
+    SE.put (-1 :: Int16)
+    -- FIXME: What does the official server send for metadata in this
+    -- case?
+    SE.put (0 :: Int16)
+  put (Equipped (Item itemOrBlockID metadata)) = do
+    SE.put itemOrBlockID
+    SE.put metadata
 
 data ServerHandshake
   = NoAuthentication
