@@ -27,7 +27,6 @@ module MC.Protocol.Types
   ) where
 
 import Data.Int
-import Data.Word
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as B
 import Data.Text (Text)
@@ -39,7 +38,7 @@ import Control.Applicative
 
 getTextUTF16be :: Get Text
 getTextUTF16be = do
-  len <- SE.get :: Get Word16
+  len <- SE.get :: Get Int16
   TE.decodeUtf16BEWith TEE.ignore <$> SE.getBytes (fromIntegral len * 2)
 
 putTextUTF16be :: Putter Text
@@ -49,7 +48,7 @@ putTextUTF16be text = do
   -- components. Data.Text.length returns the number of codepoints, so
   -- it's not suitable here.
   let encoded = TE.encodeUtf16BE text
-  SE.put (fromIntegral (B.length encoded `div` 2) :: Word16)
+  SE.put (fromIntegral (B.length encoded `div` 2) :: Int16)
   SE.putByteString encoded
 
 getLengthPrefixedByteString :: Get ByteString
