@@ -323,7 +323,7 @@ instance Serialize EntityData where
   get = do
     byte <- SE.lookAhead SE.getWord8
     if byte == 0x7F
-      then return (EntityData [])
+      then SE.getWord8 >> return (EntityData [])
       else do
         field <- SE.get
         EntityData rest <- SE.get
