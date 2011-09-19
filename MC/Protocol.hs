@@ -342,7 +342,7 @@ packetType "ServerPacket"
   , packet 0x2B "SExperience"
     [ PF.byte "currentExperience"
     , PF.byte "experienceLevel"
-    , PF.byte "totalExperience"
+    , PF.short "totalExperience"
     ]
   , packet 0x32 "SPreChunk"
     [ PF.int "x"
