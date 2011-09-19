@@ -12,7 +12,6 @@ module MC.Protocol.Fields
   , bool
   , entityID
   , worldID
-  , itemID
   , windowID
   , heldItem
   , placement
@@ -103,9 +102,6 @@ entityID = simpleField [t| EntityID |]
 
 worldID :: String -> FieldInfo
 worldID = simpleField [t| WorldID |]
-
-itemID :: String -> FieldInfo
-itemID = simpleField [t| ItemID |]
 
 windowID :: String -> FieldInfo
 windowID = simpleField [t| WindowID |]
