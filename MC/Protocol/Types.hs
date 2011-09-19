@@ -22,6 +22,7 @@ module MC.Protocol.Types
   , Placement(..)
   , Equipment(..)
   , CurrentItem(..)
+  , Fireball(..)
   , ServerHandshake(..)
   ) where
 
@@ -178,6 +179,24 @@ instance Serialize CurrentItem where
       else CurrentItem <$> SE.get
   put NoCurrentItem = SE.put (0 :: Int16)
   put (CurrentItem itemID) = SE.put itemID
+
+-- the EntityID is the entity ID of the fireball thrower, not of the
+-- fireball itself
+data Fireball = NotFireball | Fireball !EntityID !Int16 !Int16 !Int16 deriving (Eq, Show)
+
+instance Serialize Fireball where
+  get = do
+    let getInt = SE.get :: Get Int32
+    int <- SE.lookAhead getInt
+    if int == 0
+      then getInt >> return NotFireball
+      else Fireball <$> SE.get <*> SE.get <*> SE.get <*> SE.get
+  put NotFireball = SE.put (0 :: Int32)
+  put (Fireball entityID unknown1 unknown2 unknown3) = do
+    SE.put entityID
+    SE.put unknown1
+    SE.put unknown2
+    SE.put unknown3
 
 data ServerHandshake
   = NoAuthentication
