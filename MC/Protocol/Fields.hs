@@ -15,6 +15,7 @@ module MC.Protocol.Fields
   , windowID
   , item
   , heldItem
+  , maybeHeldItem
   , block
   , placement
   , equipment
@@ -109,6 +110,14 @@ item = simpleField [t| Item |]
 
 heldItem :: String -> FieldInfo
 heldItem = simpleField [t| HeldItem |]
+
+maybeHeldItem :: String -> FieldInfo
+maybeHeldItem name = FieldInfo
+  { fieldType = [t| Maybe HeldItem |]
+  , fieldName = name
+  , fieldGet  = [| getMaybeHeldItem |]
+  , fieldPut  = [| putMaybeHeldItem |]
+  }
 
 block :: String -> FieldInfo
 block = simpleField [t| Block |]
