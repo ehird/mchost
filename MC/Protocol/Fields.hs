@@ -20,6 +20,7 @@ module MC.Protocol.Fields
   , equipment
   , currentItem
   , fireball
+  , explosionData
   , serverHandshake
   , lengthPrefixedByteString
   ) where
@@ -119,6 +120,9 @@ currentItem = simpleField [t| CurrentItem |]
 
 fireball :: String -> FieldInfo
 fireball = simpleField [t| Fireball |]
+
+explosionData :: String -> FieldInfo
+explosionData = simpleField [t| ExplosionData |]
 
 serverHandshake :: String -> FieldInfo
 serverHandshake = simpleField [t| ServerHandshake |]

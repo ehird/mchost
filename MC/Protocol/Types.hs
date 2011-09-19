@@ -23,6 +23,8 @@ module MC.Protocol.Types
   , Equipment(..)
   , CurrentItem(..)
   , Fireball(..)
+  , ExplosionData(..)
+  , ExplosionItem(..)
   , ServerHandshake(..)
   ) where
 
@@ -35,6 +37,7 @@ import qualified Data.Text.Encoding.Error as TEE
 import Data.Serialize (Serialize, Get, Putter)
 import qualified Data.Serialize as SE
 import Control.Applicative
+import Control.Monad
 
 getTextUTF16be :: Get Text
 getTextUTF16be = do
@@ -196,6 +199,26 @@ instance Serialize Fireball where
     SE.put unknown1
     SE.put unknown2
     SE.put unknown3
+
+newtype ExplosionData = ExplosionData [ExplosionItem] deriving (Eq, Show)
+
+-- FIXME: Are these signed or unsigned?
+data ExplosionItem = ExplosionItem !Int8 !Int8 !Int8 deriving (Eq, Show)
+ 
+instance Serialize ExplosionItem where
+  get = ExplosionItem <$> SE.get <*> SE.get <*> SE.get
+  put (ExplosionItem x y z) = do
+    SE.put x
+    SE.put y
+    SE.put z
+
+instance Serialize ExplosionData where
+  get = do
+    count <- SE.get :: Get Int16
+    ExplosionData <$> replicateM (fromIntegral count) SE.get
+  put (ExplosionData xs) = do
+    SE.put (fromIntegral (length xs) :: Int16)
+    mapM_ SE.put xs
 
 data ServerHandshake
   = NoAuthentication
