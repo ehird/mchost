@@ -22,30 +22,10 @@ import MC.Protocol.Template
 
 import Data.Int
 import Data.Word
-import qualified Data.ByteString as B
 import Data.Text (Text)
-import qualified Data.Text.Encoding as TE
-import qualified Data.Text.Encoding.Error as TEE
-import Data.Serialize (Get, Putter)
 import qualified Data.Serialize as SE
 import qualified Data.Serialize.IEEE754 as SE754
-import Control.Applicative
 import Language.Haskell.TH
-
-getTextUTF16be :: Get Text
-getTextUTF16be = do
-  len <- SE.get :: Get Word16
-  TE.decodeUtf16BEWith TEE.ignore <$> SE.getBytes (fromIntegral len * 2)
-
-putTextUTF16be :: Putter Text
-putTextUTF16be text = do
-  -- The length is sent as the number of UTF-16 components, not as the
-  -- number of codepoints; surrogates are counted as two
-  -- components. Data.Text.length returns the number of codepoints, so
-  -- it's not suitable here.
-  let encoded = TE.encodeUtf16BE text
-  SE.put (fromIntegral (B.length encoded `div` 2) :: Word16)
-  SE.putByteString encoded
 
 simpleField :: TypeQ -> String -> FieldInfo
 simpleField typeQ name = FieldInfo

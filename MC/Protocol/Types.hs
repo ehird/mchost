@@ -1,7 +1,9 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module MC.Protocol.Types
-  ( EntityID(..)
+  ( getTextUTF16be
+  , putTextUTF16be
+  , EntityID(..)
   , getEntityID
   , WorldID(..)
   , getWorldID
@@ -18,9 +20,28 @@ module MC.Protocol.Types
 
 import Data.Int
 import Data.Word
-import Data.Serialize (Serialize, Get)
+import qualified Data.ByteString as B
+import Data.Text (Text)
+import qualified Data.Text.Encoding as TE
+import qualified Data.Text.Encoding.Error as TEE
+import Data.Serialize (Serialize, Get, Putter)
 import qualified Data.Serialize as SE
 import Control.Applicative
+
+getTextUTF16be :: Get Text
+getTextUTF16be = do
+  len <- SE.get :: Get Word16
+  TE.decodeUtf16BEWith TEE.ignore <$> SE.getBytes (fromIntegral len * 2)
+
+putTextUTF16be :: Putter Text
+putTextUTF16be text = do
+  -- The length is sent as the number of UTF-16 components, not as the
+  -- number of codepoints; surrogates are counted as two
+  -- components. Data.Text.length returns the number of codepoints, so
+  -- it's not suitable here.
+  let encoded = TE.encodeUtf16BE text
+  SE.put (fromIntegral (B.length encoded `div` 2) :: Word16)
+  SE.putByteString encoded
 
 newtype EntityID = EntityID Int32 deriving (Eq, Show, Serialize)
 
