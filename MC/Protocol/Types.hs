@@ -69,8 +69,8 @@ getWindowID :: WindowID -> Int8
 getWindowID (WindowID i) = i
 
 data ItemOrBlockID
-  = IsItem ItemID
-  | IsBlock BlockID
+  = IsItem !ItemID
+  | IsBlock !BlockID
   deriving (Eq, Show)
 
 instance Serialize ItemOrBlockID where
@@ -83,9 +83,9 @@ instance Serialize ItemOrBlockID where
   put (IsBlock blockID) = SE.put blockID
 
 data HeldItem = HeldItem
-  { heldItemOrBlockID :: ItemOrBlockID
-  , heldAmount :: Word8
-  , heldDamage :: Word16
+  { heldItemOrBlockID :: !ItemOrBlockID
+  , heldAmount :: !Word8
+  , heldDamage :: !Word16
   } deriving (Eq, Show)
 
 instance Serialize HeldItem where
@@ -95,7 +95,7 @@ instance Serialize HeldItem where
     SE.putWord8 amount
     SE.put damage
 
-data Placement = EmptyHanded | Place HeldItem deriving (Eq, Show)
+data Placement = EmptyHanded | Place !HeldItem deriving (Eq, Show)
 
 instance Serialize Placement where
   get = do
