@@ -22,8 +22,8 @@ import MC.Protocol.Template
 
 import Data.Int
 import Data.Word
+import qualified Data.ByteString as B
 import Data.Text (Text)
-import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import qualified Data.Text.Encoding.Error as TEE
 import Data.Serialize (Get, Putter)
@@ -32,15 +32,20 @@ import qualified Data.Serialize.IEEE754 as SE754
 import Control.Applicative
 import Language.Haskell.TH
 
-getTextUCS2be :: Get Text
-getTextUCS2be = do
+getTextUTF16be :: Get Text
+getTextUTF16be = do
   len <- SE.get :: Get Word16
   TE.decodeUtf16BEWith TEE.ignore <$> SE.getBytes (fromIntegral len * 2)
 
-putTextUCS2be :: Putter Text
-putTextUCS2be text = do
-  SE.put (fromIntegral (T.length text) :: Word16)
-  SE.putByteString $ TE.encodeUtf16BE text
+putTextUTF16be :: Putter Text
+putTextUTF16be text = do
+  -- The length is sent as the number of UTF-16 components, not as the
+  -- number of codepoints; surrogates are counted as two
+  -- components. Data.Text.length returns the number of codepoints, so
+  -- it's not suitable here.
+  let encoded = TE.encodeUtf16BE text
+  SE.put (fromIntegral (B.length encoded `div` 2) :: Word16)
+  SE.putByteString encoded
 
 simpleField :: TypeQ -> String -> FieldInfo
 simpleField typeQ name = FieldInfo
@@ -90,8 +95,8 @@ string :: String -> FieldInfo
 string name = FieldInfo
   { fieldType = [t| Text |]
   , fieldName = name
-  , fieldGet  = [| getTextUCS2be |]
-  , fieldPut  = [| putTextUCS2be |]
+  , fieldGet  = [| getTextUTF16be |]
+  , fieldPut  = [| putTextUTF16be |]
   }
 
 bool :: String -> FieldInfo
