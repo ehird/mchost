@@ -13,7 +13,9 @@ module MC.Protocol.Fields
   , entityID
   , worldID
   , windowID
+  , item
   , heldItem
+  , block
   , placement
   ) where
 
@@ -91,8 +93,14 @@ worldID = simpleField [t| WorldID |]
 windowID :: String -> FieldInfo
 windowID = simpleField [t| WindowID |]
 
+item :: String -> FieldInfo
+item = simpleField [t| Item |]
+
 heldItem :: String -> FieldInfo
 heldItem = simpleField [t| HeldItem |]
+
+block :: String -> FieldInfo
+block = simpleField [t| Block |]
 
 placement :: String -> FieldInfo
 placement = simpleField [t| Placement |]
