@@ -17,6 +17,7 @@ module MC.Protocol.Fields
   , heldItem
   , block
   , placement
+  , serverHandshake
   , lengthPrefixedByteString
   ) where
 
@@ -106,6 +107,9 @@ block = simpleField [t| Block |]
 
 placement :: String -> FieldInfo
 placement = simpleField [t| Placement |]
+
+serverHandshake :: String -> FieldInfo
+serverHandshake = simpleField [t| ServerHandshake |]
 
 lengthPrefixedByteString :: String -> FieldInfo
 lengthPrefixedByteString name = FieldInfo

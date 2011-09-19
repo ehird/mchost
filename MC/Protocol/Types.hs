@@ -1,4 +1,4 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE OverloadedStrings, GeneralizedNewtypeDeriving #-}
 
 module MC.Protocol.Types
   ( getTextUTF16be
@@ -20,6 +20,7 @@ module MC.Protocol.Types
   , HeldItem(..)
   , Block(..)
   , Placement(..)
+  , ServerHandshake(..)
   ) where
 
 import Data.Int
@@ -134,3 +135,28 @@ instance Serialize Placement where
       else Place <$> SE.get
   put EmptyHanded = SE.put (-1 :: Int16)
   put (Place heldItem) = SE.put heldItem
+
+data ServerHandshake
+  = NoAuthentication
+  | Authenticate
+  -- The field is a unique connection ID; the official server
+  -- generates a 64-bit word and converts it to lowercase hexadecimal
+  -- to generate this.
+  --
+  -- FIXME: Maybe it should be a String instead? It's pretty short,
+  -- though so are all the strings used in the protocol, and Text is
+  -- used for them. It'd still have to be converted to Text to
+  -- serialise it, because there's no UTF-16 decoder for Strings.
+  | LoggedIn !Text
+  deriving (Eq, Show)
+
+instance Serialize ServerHandshake where
+  get = do
+    str <- getTextUTF16be
+    case str of
+      "-" -> return NoAuthentication
+      "+" -> return Authenticate
+      _   -> return (LoggedIn str)
+  put NoAuthentication = putTextUTF16be "-"
+  put Authenticate = putTextUTF16be "+"
+  put (LoggedIn str) = putTextUTF16be str
