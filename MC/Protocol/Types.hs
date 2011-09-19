@@ -101,6 +101,14 @@ instance Serialize ItemOrBlockID where
 -- Int16 is metadata
 data Item = Item !ItemOrBlockID !Int16 deriving (Eq, Show)
 
+-- Note that this instance is *not* used in other instances; usually
+-- the amount appears first.
+instance Serialize Item where
+  get = Item <$> SE.get <*> SE.get
+  put (Item itemOrBlockID metadata) = do
+    SE.put itemOrBlockID
+    SE.put metadata
+
 -- Int8 is amount
 data HeldItem = HeldItem !Item !Int8 deriving (Eq, Show)
 
