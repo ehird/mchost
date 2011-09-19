@@ -26,11 +26,14 @@ module MC.Protocol.Types
   , ExplosionData(..)
   , ExplosionItem(..)
   , WindowItems(..)
+  , MultiBlockChangeData(..)
+  , MultiBlockChangeItem(..)
   , MapData(..)
   , ServerHandshake(..)
   ) where
 
 import Data.Int
+import Data.Bits
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as B
 import Data.Text (Text)
@@ -232,6 +235,34 @@ instance Serialize WindowItems where
   put (WindowItems xs) = do
     SE.put (fromIntegral (length xs) :: Int16)
     mapM_ SE.put xs
+
+newtype MultiBlockChangeData = MultiBlockChangeData [MultiBlockChangeItem] deriving (Eq, Show)
+
+-- FIXME: Should probably be named BlockChange and be used for single
+-- block changes too
+data MultiBlockChangeItem = MultiBlockChangeItem !Int8 !Int8 !Int8 !Block deriving (Eq, Show)
+
+instance Serialize MultiBlockChangeData where
+  get = do
+    count <- fromIntegral <$> (SE.get :: Get Int16)
+    coords <- replicateM count (unpackCoords <$> SE.get)
+    types <- replicateM count SE.get
+    metadata <- replicateM count SE.get
+    return $ MultiBlockChangeData (zipWith3 makeItem coords types metadata)
+    where -- FIXME: might be Word16; also FIXME: possibly should be Int8
+          unpackCoords :: Int16 -> (Int8,Int8,Int8)
+          unpackCoords sh = (fromIntegral (sh `shiftL` 12), fromIntegral ((sh `shiftL` 8) .&. 0xF), fromIntegral (sh .&. 0xF))
+          makeItem :: (Int8,Int8,Int8) -> Int8 -> Int8 -> MultiBlockChangeItem
+          makeItem (x,y,z) blockType metadata = MultiBlockChangeItem x y z (Block (BlockID blockType) metadata)
+  put (MultiBlockChangeData xs) = do
+    SE.put (fromIntegral (length xs) :: Int16)
+    mapM_ putCoords xs
+    mapM_ putType xs
+    mapM_ putMetadata xs
+    where putCoords (MultiBlockChangeItem x y z _) =
+            SE.put (fromIntegral (x `shiftR` 12) .|. fromIntegral (y `shiftR` 8) .|. fromIntegral z :: Int16)
+          putType (MultiBlockChangeItem _ _ _ (Block (BlockID blockID) _)) = SE.put blockID
+          putMetadata (MultiBlockChangeItem _ _ _ (Block _ metadata)) = SE.put metadata
 
 -- TODO FIXME: Parse this properly rather than this ridiculously lazy hack
 newtype MapData = MapData ByteString deriving (Eq, Show)

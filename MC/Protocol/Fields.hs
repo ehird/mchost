@@ -22,6 +22,7 @@ module MC.Protocol.Fields
   , fireball
   , explosionData
   , windowItems
+  , multiBlockChangeData
   , mapData
   , serverHandshake
   , lengthPrefixedByteString
@@ -128,6 +129,9 @@ explosionData = simpleField [t| ExplosionData |]
 
 windowItems :: String -> FieldInfo
 windowItems = simpleField [t| WindowItems |]
+
+multiBlockChangeData :: String -> FieldInfo
+multiBlockChangeData = simpleField [t| MultiBlockChangeData |]
 
 mapData :: String -> FieldInfo
 mapData = simpleField [t| MapData |]
