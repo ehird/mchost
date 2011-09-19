@@ -14,6 +14,7 @@ module MC.Protocol.Types
   , WindowID(..)
   , getWindowID
   , ItemOrBlockID(..)
+  , Item(..)
   , HeldItem(..)
   , Placement(..)
   ) where
@@ -82,18 +83,22 @@ instance Serialize ItemOrBlockID where
   put (IsItem itemID) = SE.put itemID
   put (IsBlock blockID) = SE.put blockID
 
-data HeldItem = HeldItem
-  { heldItemOrBlockID :: !ItemOrBlockID
-  , heldAmount :: !Word8
-  , heldDamage :: !Word16
-  } deriving (Eq, Show)
+-- Int16 is metadata
+data Item = Item !ItemOrBlockID !Int16 deriving (Eq, Show)
+
+-- Int8 is amount
+data HeldItem = HeldItem !Item !Int8 deriving (Eq, Show)
 
 instance Serialize HeldItem where
-  get = HeldItem <$> SE.get <*> SE.getWord8 <*> SE.get
-  put (HeldItem itemOrBlockID amount damage) = do
+  get = do
+    itemOrBlockID <- SE.get
+    amount <- SE.get
+    metadata <- SE.get
+    return $ HeldItem (Item itemOrBlockID metadata) amount
+  put (HeldItem (Item itemOrBlockID metadata) amount) = do
     SE.put itemOrBlockID
-    SE.putWord8 amount
-    SE.put damage
+    SE.put amount
+    SE.put metadata
 
 data Placement = EmptyHanded | Place !HeldItem deriving (Eq, Show)
 
