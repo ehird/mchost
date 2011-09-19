@@ -230,16 +230,23 @@ instance Serialize ExplosionData where
     SE.put (fromIntegral (length xs) :: Int16)
     mapM_ SE.put xs
 
-newtype WindowItems = WindowItems [HeldItem] deriving (Eq, Show)
+newtype WindowItems = WindowItems [Maybe HeldItem] deriving (Eq, Show)
  
--- FIXME: Exact same code as ExplosionData!
 instance Serialize WindowItems where
   get = do
     count <- SE.get :: Get Int16
-    WindowItems <$> replicateM (fromIntegral count) SE.get
+    fmap WindowItems . replicateM (fromIntegral count) $ do
+      let getShort = SE.get :: Get Int16
+      sh <- SE.lookAhead getShort
+      if sh < 0
+        then getShort >> return Nothing
+        else Just <$> SE.get
   put (WindowItems xs) = do
     SE.put (fromIntegral (length xs) :: Int16)
-    mapM_ SE.put xs
+    forM_ xs $ \x -> do
+      case x of
+        Nothing -> SE.put (-1 :: Int16)
+        Just heldItem -> SE.put heldItem
 
 newtype MultiBlockChangeData = MultiBlockChangeData [MultiBlockChangeItem] deriving (Eq, Show)
 
