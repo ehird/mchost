@@ -245,6 +245,8 @@ newtype MultiBlockChangeData = MultiBlockChangeData [MultiBlockChangeItem] deriv
 
 -- FIXME: Should probably be named BlockChange and be used for single
 -- block changes too
+--
+-- FIXME: The Int8 fields should possibly be Word8s
 data MultiBlockChangeItem = MultiBlockChangeItem !Int8 !Int8 !Int8 !Block deriving (Eq, Show)
 
 instance Serialize MultiBlockChangeData where
@@ -254,7 +256,7 @@ instance Serialize MultiBlockChangeData where
     types <- replicateM count SE.get
     metadata <- replicateM count SE.get
     return $ MultiBlockChangeData (zipWith3 makeItem coords types metadata)
-    where -- FIXME: might be Word16; also FIXME: possibly should be Int8
+    where -- FIXME: might be Word16
           unpackCoords :: Int16 -> (Int8,Int8,Int8)
           unpackCoords sh = (fromIntegral (sh `shiftL` 12), fromIntegral ((sh `shiftL` 8) .&. 0xF), fromIntegral (sh .&. 0xF))
           makeItem :: (Int8,Int8,Int8) -> Int8 -> Int8 -> MultiBlockChangeItem
