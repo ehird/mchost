@@ -21,6 +21,7 @@ module MC.Protocol.Types
   , Block(..)
   , Placement(..)
   , Equipment(..)
+  , CurrentItem(..)
   , ServerHandshake(..)
   ) where
 
@@ -165,6 +166,18 @@ instance Serialize Equipment where
   put (Equipped (Item itemOrBlockID metadata)) = do
     SE.put itemOrBlockID
     SE.put metadata
+
+data CurrentItem = NoCurrentItem | CurrentItem !ItemID deriving (Eq, Show)
+
+instance Serialize CurrentItem where
+  get = do
+    let getShort = SE.get :: Get Int16
+    sh <- SE.lookAhead getShort
+    if sh < 0
+      then getShort >> return NoCurrentItem
+      else CurrentItem <$> SE.get
+  put NoCurrentItem = SE.put (0 :: Int16)
+  put (CurrentItem itemID) = SE.put itemID
 
 data ServerHandshake
   = NoAuthentication
