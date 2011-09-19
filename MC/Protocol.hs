@@ -135,7 +135,10 @@ packetType "ServerPacket"
     [ PF.entityID "entity"
     , PF.string "unused"
     , PF.long "mapSeed" -- as above
-    , PF.bool "isCreative" -- as above
+      -- Note that this is an *int*, not a bool.
+      --
+      -- FIXME: Give this its own type too.
+    , PF.int "isCreative"
     , PF.worldID "world"
     , PF.byte "unknown"
     , PF.ubyte "worldHeight"
