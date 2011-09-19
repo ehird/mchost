@@ -36,9 +36,9 @@ packetType "ClientPacket"
     , PF.bool "isLeftClick"
     ]
   , packet 0x09 "CRespawn"
-    [ PF.byte "world" -- probably should be WorldID
+    [ PF.worldID "world"
     , PF.byte "unknown" -- might be a bool; always 1, apparently
-    , PF.bool "isCreative"
+    , PF.bool "isCreative" -- should probably be its own enum WorldType or whatever
     , PF.short "worldHeight"
     , PF.long "mapSeed" -- should probably have its own type too
     ]

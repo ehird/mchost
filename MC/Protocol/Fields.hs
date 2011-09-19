@@ -11,6 +11,7 @@ module MC.Protocol.Fields
   , string
   , bool
   , entityID
+  , worldID
   , itemID
   , windowID
   , heldItem
@@ -99,6 +100,9 @@ bool = simpleField [t| Bool |]
 
 entityID :: String -> FieldInfo
 entityID = simpleField [t| EntityID |]
+
+worldID :: String -> FieldInfo
+worldID = simpleField [t| WorldID |]
 
 itemID :: String -> FieldInfo
 itemID = simpleField [t| ItemID |]

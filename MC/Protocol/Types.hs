@@ -3,6 +3,8 @@
 module MC.Protocol.Types
   ( EntityID(..)
   , getEntityID
+  , WorldID(..)
+  , getWorldID
   , BlockID(..)
   , getBlockID
   , ItemID(..)
@@ -24,6 +26,11 @@ newtype EntityID = EntityID Int32 deriving (Eq, Show, Serialize)
 
 getEntityID :: EntityID -> Int32
 getEntityID (EntityID i) = i
+
+newtype WorldID = WorldID Int8 deriving (Eq, Show, Serialize)
+
+getWorldID :: WorldID -> Int8
+getWorldID (WorldID i) = i
 
 newtype BlockID = BlockID Int8 deriving (Eq, Show, Serialize)
 
