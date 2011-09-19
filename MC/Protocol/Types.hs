@@ -186,7 +186,7 @@ instance Serialize CurrentItem where
   get = do
     let getShort = SE.get :: Get Int16
     sh <- SE.lookAhead getShort
-    if sh < 0
+    if sh == 0
       then getShort >> return NoCurrentItem
       else CurrentItem <$> SE.get
   put NoCurrentItem = SE.put (0 :: Int16)
