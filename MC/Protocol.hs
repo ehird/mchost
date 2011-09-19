@@ -424,7 +424,7 @@ packetType "ServerPacket"
   , packet 0x67 "SSetSlot"
     [ PF.windowID "window" -- actually window ID or 0 for player inventory; this should have its own type
     , PF.short "slot"
-    , PF.heldItem "item"
+    , PF.maybeHeldItem "item"
     ]
   , packet 0x68 "SWindowItems"
     [ PF.windowID "window" -- as above
