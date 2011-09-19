@@ -29,10 +29,14 @@ module MC.Protocol.Types
   , MultiBlockChangeData(..)
   , MultiBlockChangeItem(..)
   , MapData(..)
+  , EntityData(..)
+  , EntityField(..)
+  , EntityFieldValue(..)
   , ServerHandshake(..)
   ) where
 
 import Data.Int
+import Data.Word
 import Data.Bits
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as B
@@ -41,6 +45,7 @@ import qualified Data.Text.Encoding as TE
 import qualified Data.Text.Encoding.Error as TEE
 import Data.Serialize (Serialize, Get, Putter)
 import qualified Data.Serialize as SE
+import qualified Data.Serialize.IEEE754 as SE754
 import Control.Applicative
 import Control.Monad
 
@@ -270,6 +275,60 @@ newtype MapData = MapData ByteString deriving (Eq, Show)
 instance Serialize MapData where
   get = MapData <$> getLengthPrefixedByteString
   put (MapData s) = putLengthPrefixedByteString s
+
+newtype EntityData = EntityData [EntityField] deriving (Eq, Show)
+
+-- FIXME: Should maybe be Int8
+data EntityField = EntityField !Word8 !EntityFieldValue deriving (Eq, Show)
+
+data EntityFieldValue
+  = EntityInt8 !Int8
+  | EntityInt16 !Int16
+  | EntityInt32 !Int32
+  | EntityFloat !Float
+  | EntityString !Text
+  | EntityHeldItem !HeldItem
+  | EntityVector !Int32 !Int32 !Int32
+  deriving (Eq, Show)
+
+instance Serialize EntityField where
+  get = do
+    (fieldType,ident) <- unpackEntityByte <$> SE.getWord8
+    value <- case fieldType of
+      0 -> EntityInt8 <$> SE.get
+      1 -> EntityInt16 <$> SE.get
+      2 -> EntityInt32 <$> SE.get
+      3 -> EntityFloat <$> SE754.getFloat32be
+      4 -> EntityString <$> getTextUTF16be
+      5 -> EntityHeldItem <$> SE.get
+      6 -> EntityVector <$> SE.get <*> SE.get <*> SE.get
+      _ -> fail $ "Unknown entity data field type: " ++ show fieldType
+    return (EntityField ident value)
+    where unpackEntityByte byte = (byte `shiftR` 5, byte .&. 0x1F)
+  put (EntityField ident value) = do
+    let (fieldType,action) = f value
+    SE.putWord8 $ (fieldType `shiftL` 5) .|. ident
+    action
+    where f (EntityInt8 v) = (0, SE.put v)
+          f (EntityInt16 v) = (1, SE.put v)
+          f (EntityInt32 v) = (2, SE.put v)
+          f (EntityFloat v) = (3, SE754.putFloat32be v)
+          f (EntityString s) = (4, putTextUTF16be s)
+          f (EntityHeldItem heldItem) = (5, SE.put heldItem)
+          f (EntityVector x y z) = (6, SE.put x >> SE.put y >> SE.put z)
+
+instance Serialize EntityData where
+  get = do
+    byte <- SE.lookAhead SE.getWord8
+    if byte == 0x7F
+      then return (EntityData [])
+      else do
+        field <- SE.get
+        EntityData rest <- SE.get
+        return (EntityData (field:rest))
+  put (EntityData xs) = do
+    mapM_ SE.put xs
+    SE.putWord8 0x7F
 
 data ServerHandshake
   = NoAuthentication

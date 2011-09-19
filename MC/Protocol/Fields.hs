@@ -24,6 +24,7 @@ module MC.Protocol.Fields
   , windowItems
   , multiBlockChangeData
   , mapData
+  , entityData
   , serverHandshake
   , lengthPrefixedByteString
   ) where
@@ -135,6 +136,9 @@ multiBlockChangeData = simpleField [t| MultiBlockChangeData |]
 
 mapData :: String -> FieldInfo
 mapData = simpleField [t| MapData |]
+
+entityData :: String -> FieldInfo
+entityData = simpleField [t| EntityData |]
 
 serverHandshake :: String -> FieldInfo
 serverHandshake = simpleField [t| ServerHandshake |]
