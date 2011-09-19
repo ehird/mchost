@@ -16,6 +16,7 @@ module MC.Protocol.Types
   , ItemOrBlockID(..)
   , Item(..)
   , HeldItem(..)
+  , Block(..)
   , Placement(..)
   ) where
 
@@ -98,6 +99,15 @@ instance Serialize HeldItem where
   put (HeldItem (Item itemOrBlockID metadata) amount) = do
     SE.put itemOrBlockID
     SE.put amount
+    SE.put metadata
+
+-- Int8 is metadata
+data Block = Block !BlockID !Int8 deriving (Eq, Show)
+
+instance Serialize Block where
+  get = Block <$> SE.get <*> SE.get
+  put (Block blockID metadata) = do
+    SE.put blockID
     SE.put metadata
 
 data Placement = EmptyHanded | Place !HeldItem deriving (Eq, Show)
