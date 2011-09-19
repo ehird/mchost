@@ -18,6 +18,8 @@ module MC.Protocol.Types
   , ItemOrBlockID(..)
   , Item(..)
   , HeldItem(..)
+  , getMaybeHeldItem
+  , putMaybeHeldItem
   , Block(..)
   , Placement(..)
   , Equipment(..)
@@ -138,6 +140,18 @@ instance Serialize HeldItem where
     SE.put amount
     SE.put metadata
 
+getMaybeHeldItem :: Get (Maybe HeldItem)
+getMaybeHeldItem = do
+  let getShort = SE.get :: Get Int16
+  sh <- SE.lookAhead getShort
+  if sh < 0
+    then getShort >> return Nothing
+    else Just <$> SE.get
+
+putMaybeHeldItem :: Putter (Maybe HeldItem)
+putMaybeHeldItem Nothing = SE.put (-1 :: Int16)
+putMaybeHeldItem (Just heldItem) = SE.put heldItem
+
 -- Int8 is metadata
 data Block = Block !BlockID !Int8 deriving (Eq, Show)
 
@@ -235,18 +249,10 @@ newtype WindowItems = WindowItems [Maybe HeldItem] deriving (Eq, Show)
 instance Serialize WindowItems where
   get = do
     count <- SE.get :: Get Int16
-    fmap WindowItems . replicateM (fromIntegral count) $ do
-      let getShort = SE.get :: Get Int16
-      sh <- SE.lookAhead getShort
-      if sh < 0
-        then getShort >> return Nothing
-        else Just <$> SE.get
+    WindowItems <$> replicateM (fromIntegral count) getMaybeHeldItem
   put (WindowItems xs) = do
     SE.put (fromIntegral (length xs) :: Int16)
-    forM_ xs $ \x -> do
-      case x of
-        Nothing -> SE.put (-1 :: Int16)
-        Just heldItem -> SE.put heldItem
+    mapM_ putMaybeHeldItem xs
 
 newtype MultiBlockChangeData = MultiBlockChangeData [MultiBlockChangeItem] deriving (Eq, Show)
 
