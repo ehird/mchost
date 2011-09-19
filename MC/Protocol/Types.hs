@@ -25,6 +25,7 @@ module MC.Protocol.Types
   , Fireball(..)
   , ExplosionData(..)
   , ExplosionItem(..)
+  , WindowItems(..)
   , ServerHandshake(..)
   ) where
 
@@ -217,6 +218,17 @@ instance Serialize ExplosionData where
     count <- SE.get :: Get Int16
     ExplosionData <$> replicateM (fromIntegral count) SE.get
   put (ExplosionData xs) = do
+    SE.put (fromIntegral (length xs) :: Int16)
+    mapM_ SE.put xs
+
+newtype WindowItems = WindowItems [HeldItem] deriving (Eq, Show)
+ 
+-- FIXME: Exact same code as ExplosionData!
+instance Serialize WindowItems where
+  get = do
+    count <- SE.get :: Get Int16
+    WindowItems <$> replicateM (fromIntegral count) SE.get
+  put (WindowItems xs) = do
     SE.put (fromIntegral (length xs) :: Int16)
     mapM_ SE.put xs
 
