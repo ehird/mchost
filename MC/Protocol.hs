@@ -15,7 +15,8 @@ import qualified MC.Protocol.Fields as PF
 
 packetType "ClientPacket"
   [ packet 0x00 "CKeepAlive"
-    [ PF.int "id" ]
+    [ PF.int "id"
+    ]
   , packet 0x01 "CLogin"
     [ PF.int "version"
     , PF.string "name"
@@ -27,9 +28,11 @@ packetType "ClientPacket"
     , PF.ubyte "unused"
     ]
   , packet 0x02 "CHandshake"
-    [ PF.string "name" ]
-  , packet 0x03 "CChat"
-    [ PF.string "message" ]
+    [ PF.string "name"
+    ]
+  , packet 0x03 "CChatMessage"
+    [ PF.string "message"
+    ]
   , packet 0x07 "CUseEntity"
     [ PF.entityID "user"
     , PF.entityID "target"
@@ -80,7 +83,8 @@ packetType "ClientPacket"
     , PF.placement "placement"
     ]
   , packet 0x10 "CHoldingChange"
-    [ PF.short "slot" ]
+    [ PF.short "slot"
+    ]
   , packet 0x12 "CAnimation"
     [ PF.entityID "entity"
     , PF.byte "animation" -- as above, should be PF.animation
@@ -119,5 +123,6 @@ packetType "ClientPacket"
     ]
   , packet 0xFE "CServerListPing" []
   , packet 0xFF "CDisconnect"
-    [ PF.string "unused" ]
+    [ PF.string "unused"
+    ]
   ]
