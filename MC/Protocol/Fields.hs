@@ -22,6 +22,7 @@ module MC.Protocol.Fields
   , fireball
   , explosionData
   , windowItems
+  , mapData
   , serverHandshake
   , lengthPrefixedByteString
   ) where
@@ -127,6 +128,9 @@ explosionData = simpleField [t| ExplosionData |]
 
 windowItems :: String -> FieldInfo
 windowItems = simpleField [t| WindowItems |]
+
+mapData :: String -> FieldInfo
+mapData = simpleField [t| MapData |]
 
 serverHandshake :: String -> FieldInfo
 serverHandshake = simpleField [t| ServerHandshake |]

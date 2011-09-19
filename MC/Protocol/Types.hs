@@ -26,6 +26,7 @@ module MC.Protocol.Types
   , ExplosionData(..)
   , ExplosionItem(..)
   , WindowItems(..)
+  , MapData(..)
   , ServerHandshake(..)
   ) where
 
@@ -231,6 +232,13 @@ instance Serialize WindowItems where
   put (WindowItems xs) = do
     SE.put (fromIntegral (length xs) :: Int16)
     mapM_ SE.put xs
+
+-- TODO FIXME: Parse this properly rather than this ridiculously lazy hack
+newtype MapData = MapData ByteString deriving (Eq, Show)
+
+instance Serialize MapData where
+  get = MapData <$> getLengthPrefixedByteString
+  put (MapData s) = putLengthPrefixedByteString s
 
 data ServerHandshake
   = NoAuthentication
