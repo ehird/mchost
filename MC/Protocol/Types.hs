@@ -169,7 +169,7 @@ instance Serialize Equipment where
     let getShort = SE.get :: Get Int16
     sh <- SE.lookAhead getShort
     if sh < 0
-      then getShort >> return NothingEquipped
+      then getShort >> getShort >> return NothingEquipped
       else Equipped <$> (Item <$> SE.get <*> SE.get)
   put NothingEquipped = do
     SE.put (-1 :: Int16)
