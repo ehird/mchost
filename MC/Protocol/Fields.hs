@@ -17,6 +17,7 @@ module MC.Protocol.Fields
   , heldItem
   , block
   , placement
+  , lengthPrefixedByteString
   ) where
 
 import MC.Protocol.Types
@@ -24,6 +25,7 @@ import MC.Protocol.Template
 
 import Data.Int
 import Data.Word
+import Data.ByteString (ByteString)
 import Data.Text (Text)
 import qualified Data.Serialize as SE
 import qualified Data.Serialize.IEEE754 as SE754
@@ -104,3 +106,11 @@ block = simpleField [t| Block |]
 
 placement :: String -> FieldInfo
 placement = simpleField [t| Placement |]
+
+lengthPrefixedByteString :: String -> FieldInfo
+lengthPrefixedByteString name = FieldInfo
+  { fieldType = [t| ByteString |]
+  , fieldName = name
+  , fieldGet  = [| getLengthPrefixedByteString |]
+  , fieldPut  = [| putLengthPrefixedByteString |]
+  }

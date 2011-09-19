@@ -3,6 +3,8 @@
 module MC.Protocol.Types
   ( getTextUTF16be
   , putTextUTF16be
+  , getLengthPrefixedByteString
+  , putLengthPrefixedByteString
   , EntityID(..)
   , getEntityID
   , WorldID(..)
@@ -22,6 +24,7 @@ module MC.Protocol.Types
 
 import Data.Int
 import Data.Word
+import Data.ByteString (ByteString)
 import qualified Data.ByteString as B
 import Data.Text (Text)
 import qualified Data.Text.Encoding as TE
@@ -44,6 +47,16 @@ putTextUTF16be text = do
   let encoded = TE.encodeUtf16BE text
   SE.put (fromIntegral (B.length encoded `div` 2) :: Word16)
   SE.putByteString encoded
+
+getLengthPrefixedByteString :: Get ByteString
+getLengthPrefixedByteString = do
+  bytes <- SE.getWord8
+  SE.getByteString (fromIntegral bytes)
+
+putLengthPrefixedByteString :: Putter ByteString
+putLengthPrefixedByteString str = do
+  SE.putWord8 $ fromIntegral (B.length str)
+  SE.putByteString str
 
 newtype EntityID = EntityID Int32 deriving (Eq, Show, Serialize)
 
