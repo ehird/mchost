@@ -26,8 +26,8 @@ module MC.Protocol.Fields
   , multiBlockChangeData
   , mapData
   , entityData
+  , mapChunk
   , serverHandshake
-  , lengthPrefixedByteString
   ) where
 
 import MC.Protocol.Types
@@ -35,7 +35,6 @@ import MC.Protocol.Template
 
 import Data.Int
 import Data.Word
-import Data.ByteString (ByteString)
 import Data.Text (Text)
 import qualified Data.Serialize as SE
 import qualified Data.Serialize.IEEE754 as SE754
@@ -149,13 +148,8 @@ mapData = simpleField [t| MapData |]
 entityData :: String -> FieldInfo
 entityData = simpleField [t| EntityData |]
 
+mapChunk :: String -> FieldInfo
+mapChunk = simpleField [t| MapChunk |]
+
 serverHandshake :: String -> FieldInfo
 serverHandshake = simpleField [t| ServerHandshake |]
-
-lengthPrefixedByteString :: String -> FieldInfo
-lengthPrefixedByteString name = FieldInfo
-  { fieldType = [t| ByteString |]
-  , fieldName = name
-  , fieldGet  = [| getLengthPrefixedByteString |]
-  , fieldPut  = [| putLengthPrefixedByteString |]
-  }

@@ -360,9 +360,7 @@ packetType "ServerPacket"
     , PF.byte "xSize"
     , PF.byte "ySize"
     , PF.byte "zSize"
-      -- FIXME: Maybe this should have its own type which just gets
-      -- compressed/decompressed on serialisation/deserialisation.
-    , PF.lengthPrefixedByteString "data"
+    , PF.mapChunk "data"
     ]
     -- This packet is completely awful.
   , packet 0x34 "SMultiBlockChange"

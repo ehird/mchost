@@ -3,8 +3,6 @@
 module MC.Protocol.Types
   ( getTextUTF16be
   , putTextUTF16be
-  , getLengthPrefixedByteString
-  , putLengthPrefixedByteString
   , EntityID(..)
   , getEntityID
   , WorldID(..)
@@ -34,6 +32,7 @@ module MC.Protocol.Types
   , EntityData(..)
   , EntityField(..)
   , EntityFieldValue(..)
+  , MapChunk(..)
   , ServerHandshake(..)
   ) where
 
@@ -65,16 +64,6 @@ putTextUTF16be text = do
   let encoded = TE.encodeUtf16BE text
   SE.put (fromIntegral (B.length encoded `div` 2) :: Int16)
   SE.putByteString encoded
-
-getLengthPrefixedByteString :: Get ByteString
-getLengthPrefixedByteString = do
-  bytes <- SE.getWord8
-  SE.getByteString (fromIntegral bytes)
-
-putLengthPrefixedByteString :: Putter ByteString
-putLengthPrefixedByteString str = do
-  SE.putWord8 $ fromIntegral (B.length str)
-  SE.putByteString str
 
 newtype EntityID = EntityID Int32 deriving (Eq, Show, Serialize)
 
@@ -348,6 +337,19 @@ instance Serialize EntityData where
   put (EntityData xs) = do
     mapM_ SE.put xs
     SE.putWord8 0x7F
+
+-- FIXME: Maybe this should be its own proper type which just gets
+-- compressed/decompressed on serialisation/deserialisation, rather
+-- than the trivial newtype it is now.
+newtype MapChunk = MapChunk ByteString deriving (Eq, Show)
+
+instance Serialize MapChunk where
+  get = do
+    bytes <- SE.get :: Get Int32
+    MapChunk <$> SE.getByteString (fromIntegral bytes)
+  put (MapChunk str) = do
+    SE.put (fromIntegral (B.length str) :: Int32)
+    SE.putByteString str
 
 data ServerHandshake
   = NoAuthentication
