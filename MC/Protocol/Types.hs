@@ -288,8 +288,12 @@ instance Serialize MultiBlockChangeData where
 newtype MapData = MapData ByteString deriving (Eq, Show)
 
 instance Serialize MapData where
-  get = MapData <$> getLengthPrefixedByteString
-  put (MapData s) = putLengthPrefixedByteString s
+  get = do
+    bytes <- SE.getWord8
+    MapData <$> SE.getByteString (fromIntegral bytes)
+  put (MapData str) = do
+    SE.putWord8 $ fromIntegral (B.length str)
+    SE.putByteString str
 
 newtype EntityData = EntityData [EntityField] deriving (Eq, Show)
 
