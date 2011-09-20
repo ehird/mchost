@@ -419,6 +419,9 @@ packetType "ServerPacket"
     , PF.string "title"
     , PF.byte "slots"
     ]
+  , packet 0x65 "SCloseWindow"
+    [ PF.windowID "window"
+    ]
   , packet 0x67 "SSetSlot"
     [ PF.windowID "window" -- actually window ID or 0 for player inventory; this should have its own type
     , PF.short "slot"
