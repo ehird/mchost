@@ -168,6 +168,15 @@ packetType "ServerPacket"
     , PF.short "food"
     , PF.float "foodSaturation"
     ]
+    -- Identical to the client version; all notes for that one apply
+    -- here too.
+  , packet 0x09 "SRespawn"
+    [ PF.worldID "world"
+    , PF.byte "unknown"
+    , PF.bool "isCreative"
+    , PF.short "worldHeight"
+    , PF.long "mapSeed"
+    ]
     -- NOTE: This packet is NOT the same as the client version; the Y
     -- coordinate and the stance value are swapped. Yes, this is
     -- completely ridiculous.
