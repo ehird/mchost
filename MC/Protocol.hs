@@ -193,7 +193,7 @@ packetType "ServerPacket"
     [ PF.entityID "entity"
     , PF.byte "unknown" -- "???In Bed???", "0 Appears when players use bed"
     , PF.int "x"
-    , PF.int "y"
+    , PF.byte "y"
     , PF.int "z"
     ]
     -- FIXME: Does the server ever send these? I think yes, but I'm
