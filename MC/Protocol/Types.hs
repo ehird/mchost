@@ -100,9 +100,15 @@ instance Serialize ItemOrBlockID where
     sh <- SE.lookAhead SE.get :: Get Int16
     if sh > 255
       then IsItem <$> SE.get
-      else IsBlock <$> SE.get
+      else do
+        -- discard the additional byte
+        SE.skip 1
+        IsBlock <$> SE.get
   put (IsItem itemID) = SE.put itemID
-  put (IsBlock blockID) = SE.put blockID
+  put (IsBlock blockID) = do
+    -- add the additional byte
+    SE.putWord8 0
+    SE.put blockID
 
 -- Int16 is metadata
 data Item = Item !ItemOrBlockID !Int16 deriving (Eq, Show)
