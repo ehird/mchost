@@ -30,7 +30,7 @@ enumPut f = mkInum (SE.runPut . mapM_ f <$> dataI)
 
 handle :: HostName -> PortNumber -> Inum [ClientPacket] [ServerPacket] IO ()
 handle clientHost clientPort = mkInum $ do
-  return [SKick $ "ollies outie " `T.append` T.pack (show (clientHost,clientPort))]
+  return [SKick $ "ollies outy " `T.append` T.pack (show (clientHost,clientPort))]
 
 serverLoop :: Socket -> IO ()
 serverLoop server = loop
