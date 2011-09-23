@@ -104,7 +104,7 @@ packetType "ClientPacket"
     [ PF.windowID "window"
     , PF.short "slot"
     , PF.bool "isRightClick"
-    , PF.short "action" -- as above... this may be a different action, it's the same as the Transaction packet apparently
+    , PF.short "action" -- as above... this is probably a different action, it's the same as the Transaction packet apparently
     , PF.bool "shiftHeld"
     , PF.heldItem "item"
     ]
