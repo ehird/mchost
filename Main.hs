@@ -28,7 +28,7 @@ getI m = mkInum $ loop (SE.runGetPartial m)
 enumPut :: (Monad m, Show t) => Putter t -> Inum [t] ByteString m a
 enumPut f = mkInum (SE.runPut . mapM_ f <$> dataI)
 
-handle :: HostName -> PortNumber -> Inum [ClientPacket] [ServerPacket] IO ()
+handle :: HostName -> PortNumber -> Inum [ClientPacket] [ServerPacket] IO a
 handle clientHost clientPort = mkInum $ do
   return [SKick $ "ollies outy " `T.append` T.pack (show (clientHost,clientPort))]
 
