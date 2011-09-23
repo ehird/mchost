@@ -41,9 +41,9 @@ serverLoop server = loop
           putStrLn $ "Handling connection from " ++ show (clientHost,clientPort)
           _ <- forkIO . Iter.run
              $ enumClient
-            .| getI (SE.get :: Get ClientPacket)
+            .| getI SE.get
             .| handle clientHost clientPort
-            .| enumPut (SE.put :: Putter ServerPacket)
+            .| enumPut SE.put
             .| clientI
           loop
 
