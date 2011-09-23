@@ -375,6 +375,7 @@ instance Serialize Difficulty where
       3 -> return Hard
       _ -> fail $ "Unknown difficulty value " ++ show n
   put Peaceful = SE.put (0 :: Int8)
+  put Easy = SE.put (1 :: Int8)
   put Normal = SE.put (2 :: Int8)
   put Hard = SE.put (3 :: Int8)
 
