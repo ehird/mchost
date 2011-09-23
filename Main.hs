@@ -10,10 +10,10 @@ import qualified Data.Text as T
 import Data.IterIO
 import qualified Data.IterIO.Iter as Iter
 import Control.Applicative
+import Control.Concurrent
 import System.IO
 import System.Environment
 import System.Exit
-import Control.Concurrent
 import Network
 
 getI :: (Monad m, Show t) => Get t -> Inum ByteString [t] m a
