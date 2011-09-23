@@ -33,6 +33,7 @@ module MC.Protocol.Types
   , EntityField(..)
   , EntityFieldValue(..)
   , MapChunk(..)
+  , Difficulty(..)
   , ServerHandshake(..)
   ) where
 
@@ -356,6 +357,26 @@ instance Serialize MapChunk where
   put (MapChunk str) = do
     SE.put (fromIntegral (B.length str) :: Int32)
     SE.putByteString str
+
+data Difficulty
+  = Peaceful
+  | Easy
+  | Normal
+  | Hard
+  deriving (Eq, Show, Enum)
+
+instance Serialize Difficulty where
+  get = do
+    n <- SE.get :: Get Int8
+    case n of
+      0 -> return Peaceful
+      1 -> return Easy
+      2 -> return Normal
+      3 -> return Hard
+      _ -> fail $ "Unknown difficulty value " ++ show n
+  put Peaceful = SE.put (0 :: Int8)
+  put Normal = SE.put (2 :: Int8)
+  put Hard = SE.put (3 :: Int8)
 
 data ServerHandshake
   = NoAuthentication

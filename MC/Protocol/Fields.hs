@@ -27,6 +27,7 @@ module MC.Protocol.Fields
   , mapData
   , entityData
   , mapChunk
+  , difficulty
   , serverHandshake
   ) where
 
@@ -150,6 +151,9 @@ entityData = simpleField [t| EntityData |]
 
 mapChunk :: String -> FieldInfo
 mapChunk = simpleField [t| MapChunk |]
+
+difficulty :: String -> FieldInfo
+difficulty = simpleField [t| Difficulty |]
 
 serverHandshake :: String -> FieldInfo
 serverHandshake = simpleField [t| ServerHandshake |]

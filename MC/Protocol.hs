@@ -41,7 +41,7 @@ packetType "ClientPacket"
     ]
   , packet 0x09 "CRespawn"
     [ PF.worldID "world"
-    , PF.byte "unknown" -- might be a bool; always 1, apparently
+    , PF.byte "unused" -- difficulty in the server->client version; always sent as 1
     , PF.bool "isCreative" -- should probably be its own enum WorldType or whatever
     , PF.short "worldHeight"
     , PF.long "mapSeed" -- should probably have its own type too
@@ -140,7 +140,7 @@ packetType "ServerPacket"
       -- FIXME: Give this its own type too.
     , PF.int "isCreative"
     , PF.worldID "world"
-    , PF.byte "unknown"
+    , PF.difficulty "difficulty"
     , PF.ubyte "worldHeight"
     , PF.ubyte "maxPlayers"
     ]
@@ -172,7 +172,7 @@ packetType "ServerPacket"
     -- here too.
   , packet 0x09 "SRespawn"
     [ PF.worldID "world"
-    , PF.byte "unknown"
+    , PF.difficulty "difficulty"
     , PF.bool "isCreative"
     , PF.short "worldHeight"
     , PF.long "mapSeed"
