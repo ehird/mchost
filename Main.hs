@@ -6,6 +6,7 @@ import MC.Protocol
 import Data.ByteString (ByteString)
 import Data.Serialize (Get, Putter)
 import qualified Data.Serialize as SE
+import Data.Text (Text)
 import qualified Data.Text as T
 import Data.IterIO
 import qualified Data.IterIO.Iter as Iter
@@ -29,8 +30,18 @@ enumPut :: (Monad m, Show t) => Putter t -> Inum [t] ByteString m a
 enumPut f = mkInum (SE.runPut . mapM_ f <$> dataI)
 
 handle :: HostName -> PortNumber -> Inum [ClientPacket] [ServerPacket] IO a
-handle clientHost clientPort = mkInum $ do
-  return [SKick $ "ollies outy " `T.append` T.pack (show (clientHost,clientPort))]
+handle clientHost clientPort = mkInumAutoM $ do
+  p <- headLI
+  case p of
+    CServerListPing -> kick "server list"
+    CHandshake name -> do
+      _ <- ifeed [SHandshake (LoggedIn "hello")]
+      kick name
+    _ -> kick "What *are* you?"
+  where kick :: Text -> InumM [ClientPacket] [ServerPacket] IO a ()
+        kick name = do
+          _ <- ifeed [SKick $ "ollies outy " `T.append` T.pack (show (name,clientHost,clientPort))]
+          return ()
 
 serverLoop :: Socket -> IO ()
 serverLoop server = loop
