@@ -18,6 +18,7 @@ module MC.Protocol.Fields
   , playerPos
   , playerPosXSYZ
   , chunkPos
+  , direction
   , entityID
   , worldID
   , windowID
@@ -154,6 +155,9 @@ playerPosXSYZ name = FieldInfo
 
 chunkPos :: String -> FieldInfo
 chunkPos = simpleField [t| ChunkPos |]
+
+direction :: String -> FieldInfo
+direction = simpleField [t| Direction |]
 
 entityID :: String -> FieldInfo
 entityID = simpleField [t| EntityID |]
