@@ -4,6 +4,8 @@ synopsis:      A Minecraft server in Haskell.
 author:        Elliott Hird
 maintainer:    penguinofthegods@gmail.com
 category:      Game
+license:       BSD3
+license-file:  LICENSE
 build-type:    Simple
 cabal-version: >= 1.10
 
