@@ -104,13 +104,15 @@ packetType "ClientPacket"
     [ PF.windowID "window"
     , PF.short "slot"
     , PF.bool "isRightClick"
-    , PF.short "action" -- as above... this is probably a different action, it's the same as the Transaction packet apparently
+      -- as above... this is a different action to the CEntityAction
+      -- packets; it's the same as the Transaction packet
+    , PF.short "actionID" 
     , PF.bool "shiftHeld"
     , PF.heldItem "item"
     ]
   , packet 0x6A "CTransaction"
     [ PF.windowID "window"
-    , PF.short "action" -- see CWindowClick
+    , PF.short "actionID" -- see CWindowClick
     , PF.bool "accepted"
     ]
   , packet 0x82 "CUpdateSign"
@@ -440,7 +442,7 @@ packetType "ServerPacket"
     ]
   , packet 0x6A "STransaction"
     [ PF.windowID "window" -- probably as above; not sure
-    , PF.short "action" -- should have its own type, as (far) above
+    , PF.short "actionID" -- should have its own type, as (far) above
     , PF.bool "accepted"
     ]
   , packet 0x6B "SCreativeInventoryAction"
