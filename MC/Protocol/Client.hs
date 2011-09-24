@@ -61,7 +61,7 @@ packetType "ClientPacket"
     ]
   , packet 0x0F "PlayerBlockPlacement"
     [ PF.blockPos "blockPos"
-    , PF.byte "direction" -- as above
+    , PF.byte "placeDirection" -- as above
     , PF.placement "placement"
     ]
   , packet 0x10 "HoldingChange"

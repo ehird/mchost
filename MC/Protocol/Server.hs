@@ -108,7 +108,7 @@ packetType "ServerPacket"
     , PF.byte "type" -- as above
     , PF.intPoint "position"
     , PF.byteDirection "direction"
-    , PF.entityData "metadata"
+    , PF.entityData "data"
     ]
   , packet 0x19 "PaintingSpawn"
     [ PF.entityID "entity"
@@ -175,7 +175,7 @@ packetType "ServerPacket"
   , packet 0x28 "EntityMetadata"
     [ PF.entityID "entity"
       -- as S.MobSpawn; maybe rename this too?
-    , PF.entityData "metadata"
+    , PF.entityData "data"
     ]
   , packet 0x29 "EntityEffect"
     [ PF.entityID "entity"
@@ -276,8 +276,8 @@ packetType "ServerPacket"
       -- fields are always sent, even when the item is -1, unlike
       -- every other instance. Sigh.
     , PF.short "item"
-    , PF.short "amount"
-    , PF.short "metadata"
+    , PF.short "itemAmount"
+    , PF.short "itemMetadata"
     ]
     -- Identical to the client version.
   , packet 0x82 "UpdateSign"
