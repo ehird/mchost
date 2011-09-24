@@ -22,6 +22,9 @@ module MC.Protocol.Types
   , ChunkPos(..)
   , chunkPosX
   , chunkPosZ
+  , Direction(..)
+  , directionYaw
+  , directionPitch
   , EntityID(..)
   , getEntityID
   , WorldID(..)
@@ -189,6 +192,20 @@ chunkPosX (ChunkPos x _) = x
 
 chunkPosZ :: ChunkPos -> Int32
 chunkPosZ (ChunkPos _ z) = z
+
+data Direction = Direction !Float !Float deriving (Eq, Show)
+
+instance Serialize Direction where
+  get = Direction <$> SE754.getFloat32be <*> SE754.getFloat32be
+  put (Direction yaw pitch) = do
+    SE754.putFloat32be yaw
+    SE754.putFloat32be pitch
+
+directionYaw :: Direction -> Float
+directionYaw (Direction yaw _) = yaw
+
+directionPitch :: Direction -> Float
+directionPitch (Direction _ pitch) = pitch
 
 newtype EntityID = EntityID Int32 deriving (Eq, Show, Serialize)
 
