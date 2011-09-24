@@ -17,6 +17,8 @@ module MC.Protocol.Types
   , playerPosX
   , playerPosY
   , playerPosZ
+  , getPlayerPosXSYZ
+  , putPlayerPosXSYZ
   , ChunkPos(..)
   , chunkPosX
   , chunkPosZ
@@ -157,6 +159,22 @@ playerPosY = pointY . playerPosPoint
 
 playerPosZ :: PlayerPos -> Double
 playerPosZ = pointZ . playerPosPoint
+
+-- See the comments on SPlayerPositionLook for an explanation of this.
+getPlayerPosXSYZ :: Get PlayerPos
+getPlayerPosXSYZ = do
+  x <- SE754.getFloat64be
+  stance <- SE754.getFloat64be
+  y <- SE754.getFloat64be
+  z <- SE754.getFloat64be
+  return (PlayerPos (Point x y z) stance)
+
+putPlayerPosXSYZ :: Putter PlayerPos
+putPlayerPosXSYZ (PlayerPos (Point x y z) stance) = do
+  SE754.putFloat64be x
+  SE754.putFloat64be stance
+  SE754.putFloat64be y
+  SE754.putFloat64be z
 
 data ChunkPos = ChunkPos !Int32 !Int32 deriving (Eq, Show)
 
