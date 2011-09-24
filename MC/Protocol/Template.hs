@@ -9,6 +9,7 @@ module MC.Protocol.Template
 
 import Numeric
 import Data.Word
+import Data.Char
 import Data.Serialize (Serialize, Get)
 import qualified Data.Serialize as SE
 import Control.Applicative
@@ -36,8 +37,13 @@ packetType strName packets =
              ]
            ]
   where name = mkName strName
-        packetCon (Packet _ pname fields) = normalC pname $ map packetField fields
-        packetField fi = (,) IsStrict <$> fieldType fi
+        packetCon (Packet _ pname fields) = recC pname $ map (packetField pname) fields
+        packetField pname fi = (,,) (mkFieldName pname (fieldName fi)) IsStrict <$> fieldType fi
+        mkFieldName pname "id" = prefix pname "ID"
+        mkFieldName pname (f:fs) = prefix pname (toUpper f : fs)
+        mkFieldName pname "" = error $ "Empty field name in packet " ++ show pname
+        prefix pname fname = mkName (toLower p : ps ++ fname)
+          where p:ps = nameBase pname
         getExp xs = do
           typeVar <- newName "t"
           unboxedTypeVar <- newName "t#"
