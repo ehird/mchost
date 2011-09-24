@@ -20,6 +20,7 @@ module MC.Protocol.Fields
   , chunkPos
   , direction
   , byteDirection
+  , byteOrientation
   , entityID
   , worldID
   , windowID
@@ -166,6 +167,14 @@ byteDirection name = FieldInfo
   , fieldName = name
   , fieldGet  = [| getByteDirection |]
   , fieldPut  = [| putByteDirection |]
+  }
+
+byteOrientation :: String -> FieldInfo
+byteOrientation name = FieldInfo
+  { fieldType = [t| Orientation |]
+  , fieldName = name
+  , fieldGet  = [| getByteOrientation |]
+  , fieldPut  = [| putByteOrientation |]
   }
 
 entityID :: String -> FieldInfo

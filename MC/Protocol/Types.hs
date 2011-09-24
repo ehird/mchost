@@ -32,6 +32,8 @@ module MC.Protocol.Types
   , orientationRoll
   , orientationYaw
   , orientationPitch
+  , getByteOrientation
+  , putByteOrientation
   , EntityID(..)
   , getEntityID
   , WorldID(..)
@@ -237,6 +239,18 @@ orientationYaw = directionYaw . orientationDirection
 
 orientationPitch :: Orientation -> Float
 orientationPitch = directionPitch . orientationDirection
+
+-- FIXME: Annoying duplication with {get,put}ByteDirection
+
+getByteOrientation :: Get Orientation
+getByteOrientation = Orientation <$> getByteDirection <*> getComponent
+  where getComponent = ((/ 256) . (* 360) . fromIntegral) <$> SE.getWord8
+
+putByteOrientation :: Putter Orientation
+putByteOrientation (Orientation dir roll) = do
+  putByteDirection dir
+  putComponent roll
+  where putComponent = SE.putWord8 . truncate . (/ 360) . (* 256)
 
 newtype EntityID = EntityID Int32 deriving (Eq, Show, Serialize)
 
