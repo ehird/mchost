@@ -86,6 +86,12 @@ pointZ (Point _ _ z) = z
 
 data ChunkPos = ChunkPos !Int32 !Int32 deriving (Eq, Show)
 
+instance Serialize ChunkPos where
+  get = ChunkPos <$> SE.get <*> SE.get
+  put (ChunkPos x z) = do
+    SE.put x
+    SE.put z
+
 chunkPosX :: ChunkPos -> Int32
 chunkPosX (ChunkPos x _) = x
 
