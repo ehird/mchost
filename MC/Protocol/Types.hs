@@ -3,6 +3,13 @@
 module MC.Protocol.Types
   ( getTextUTF16be
   , putTextUTF16be
+  , Point(..)
+  , pointX
+  , pointY
+  , pointZ
+  , ChunkPos(..)
+  , chunkPosX
+  , chunkPosZ
   , EntityID(..)
   , getEntityID
   , WorldID(..)
@@ -65,6 +72,25 @@ putTextUTF16be text = do
   let encoded = TE.encodeUtf16BE text
   SE.put (fromIntegral (B.length encoded `div` 2) :: Int16)
   SE.putByteString encoded
+
+data Point = Point !Double !Double !Double deriving (Eq, Show)
+
+pointX :: Point -> Double
+pointX (Point x _ _) = x
+
+pointY :: Point -> Double
+pointY (Point _ y _) = y
+
+pointZ :: Point -> Double
+pointZ (Point _ _ z) = z
+
+data ChunkPos = ChunkPos !Int32 !Int32 deriving (Eq, Show)
+
+chunkPosX :: ChunkPos -> Int32
+chunkPosX (ChunkPos x _) = x
+
+chunkPosZ :: ChunkPos -> Int32
+chunkPosZ (ChunkPos _ z) = z
 
 newtype EntityID = EntityID Int32 deriving (Eq, Show, Serialize)
 
