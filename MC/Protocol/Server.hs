@@ -38,9 +38,7 @@ packetType "ServerPacket"
     , PF.equipment "equipment"
     ]
   , packet 0x06 "SpawnPosition"
-    [ PF.int "x"
-    , PF.int "y"
-    , PF.int "z"
+    [ PF.blockPosIntY "position"
     ]
   , packet 0x08 "UpdateHealth"
     [ PF.short "health"
@@ -60,20 +58,14 @@ packetType "ServerPacket"
     -- coordinate and the stance value are swapped. Yes, this is
     -- completely ridiculous.
   , packet 0x0D "PlayerPositionLook"
-    [ PF.double "x"
-    , PF.double "stance"
-    , PF.double "y"
-    , PF.double "z"
-    , PF.float "yaw"
-    , PF.float "pitch"
+    [ PF.playerPosXSYZ "position"
+    , PF.direction "direction"
     , PF.bool "isOnGround"
     ]
   , packet 0x11 "UseBed"
     [ PF.entityID "entity"
     , PF.byte "unknown" -- "???In Bed???", "0 Appears when players use bed"
-    , PF.int "x"
-    , PF.byte "y"
-    , PF.int "z"
+    , PF.blockPos "position" -- "headboard?"
     ]
     -- FIXME: Does the server ever send these? I think yes, but I'm
     -- not sure.
@@ -84,13 +76,8 @@ packetType "ServerPacket"
   , packet 0x14 "NamedEntitySpawn"
     [ PF.entityID "entity"
     , PF.string "name"
-    , PF.int "x"
-    , PF.int "y"
-    , PF.int "z"
-      -- FIXME: Rotation and pitch are "packed bytes", whatever that
-      -- means; change types accordingly
-    , PF.byte "rotation"
-    , PF.byte "pitch"
+    , PF.intPoint "position"
+    , PF.byteDirection "direction"
       -- I don't think we need to worry about sending this awful thing
       -- as anything but "nothing held"; we can send it as an
       -- equipment packet instead. Which is a relief, because it's
@@ -102,13 +89,8 @@ packetType "ServerPacket"
       -- FIXME: This makes the name heldItem quite inaccurate, but I
       -- can't think of anything better.
     , PF.heldItem "item"
-    , PF.int "x"
-    , PF.int "y"
-    , PF.int "z"
-      -- Packed bytes as above, including roll.
-    , PF.byte "rotation"
-    , PF.byte "pitch"
-    , PF.byte "roll"
+    , PF.intPoint "position"
+    , PF.byteOrientation "orientation"
     ]
   , packet 0x16 "CollectItem"
     -- FIXME: These names suck.
@@ -118,37 +100,25 @@ packetType "ServerPacket"
   , packet 0x17 "ObjectSpawn"
     [ PF.entityID "entity"
     , PF.byte "type" -- should have its own type
-    , PF.int "x"
-    , PF.int "y"
-    , PF.int "z"
+    , PF.intPoint "position"
     , PF.fireball "fireball"
     ]
   , packet 0x18 "MobSpawn"
     [ PF.entityID "entity"
     , PF.byte "type" -- as above
-    , PF.int "x"
-    , PF.int "y"
-    , PF.int "z"
-      -- Apparently these are in steps of 2pi/256. Perhaps this is the
-      -- packed format mentioned above.
-    , PF.byte "yaw"
-    , PF.byte "pitch"
-      -- FIXME: Possibly rename to "data"?
+    , PF.intPoint "position"
+    , PF.byteDirection "direction"
     , PF.entityData "metadata"
     ]
   , packet 0x19 "PaintingSpawn"
     [ PF.entityID "entity"
     , PF.string "title"
-    , PF.int "x"
-    , PF.int "y"
-    , PF.int "z"
+    , PF.blockPos "centrePos"
     , PF.int "direction" -- should have its own type
     ]
   , packet 0x1A "ExperienceOrbSpawn"
     [ PF.entityID "entity"
-    , PF.int "x"
-    , PF.int "y"
-    , PF.int "z"
+    , PF.intPoint "position"
     , PF.short "count"
     ]
   , packet 0x1C "EntityVelocity"
@@ -177,11 +147,7 @@ packetType "ServerPacket"
     ]
   , packet 0x20 "EntityLook"
     [ PF.entityID "entity"
-      -- These are as a fraction of 360, apparently, so there are at
-      -- least two formats for yaw and pitch. TODO: Figure out which
-      -- one S.NamedEntitySpawn uses.
-    , PF.byte "yaw"
-    , PF.byte "pitch"
+    , PF.byteDirection "direction"
     ]
   , packet 0x21 "EntityLookRelativeMove"
     [ PF.entityID "entity"
@@ -189,18 +155,12 @@ packetType "ServerPacket"
     , PF.byte "dx"
     , PF.byte "dy"
     , PF.byte "dz"
-      -- Same format as S.EntityLook
-    , PF.byte "yaw"
-    , PF.byte "pitch"
+    , PF.byteDirection "direction"
     ]
   , packet 0x22 "EntityTeleport"
     [ PF.entityID "entity"
-    , PF.int "x"
-    , PF.int "y"
-    , PF.int "z"
-      -- Same format as S.EntityLook
-    , PF.byte "yaw"
-    , PF.byte "pitch"
+    , PF.intPoint "position"
+    , PF.byteDirection "direction"
     ]
   , packet 0x26 "EntityStatus"
     [ PF.entityID "entity"
@@ -240,9 +200,7 @@ packetType "ServerPacket"
     , PF.bool "mode"
     ]
   , packet 0x33 "MapChunk"
-    [ PF.int "x"
-    , PF.short "y"
-    , PF.int "z"
+    [ PF.blockPosShortY "topLeftBlockPos"
       -- These are the real size minus 1.
     , PF.byte "xSize"
     , PF.byte "ySize"
@@ -255,15 +213,11 @@ packetType "ServerPacket"
     , PF.multiBlockChangeData "data"
     ]
   , packet 0x35 "BlockChange"
-    [ PF.int "x"
-    , PF.byte "y"
-    , PF.int "z"
+    [ PF.blockPos "blockPos"
     , PF.block "block"
     ]
   , packet 0x36 "BlockAction"
-    [ PF.int "x"
-    , PF.short "y"
-    , PF.int "z"
+    [ PF.blockPosShortY "blockPos"
       -- This packet is horrible in every way; the fields are state
       -- and direction if this is a piston, but instrument and pitch
       -- if it's a note block. We can't just make this into a data
@@ -272,17 +226,13 @@ packetType "ServerPacket"
     , PF.byte "data2"
     ]
   , packet 0x3C "Explosion"
-    [ PF.double "x"
-    , PF.double "y"
-    , PF.double "z"
+    [ PF.point "position"
     , PF.float "unknown" -- wiki says this might be radius
     , PF.explosionData "data"
     ]
   , packet 0x3D "SoundEffect"
     [ PF.int "effect" -- as above
-    , PF.int "x"
-    , PF.byte "y"
-    , PF.int "z"
+    , PF.blockPos "blockPos"
       -- should be a custom type, but since it depends on the effect
       -- this whole packet will have to become a custom type; FIXME:
       -- is there a solution that isn't that ugly?
@@ -295,9 +245,7 @@ packetType "ServerPacket"
   , packet 0x47 "Thunderbolt"
     [ PF.entityID "entity"
     , PF.bool "unknown" -- always true
-    , PF.int "x"
-    , PF.int "y"
-    , PF.int "z"
+    , PF.intPoint "position"
     ]
   , packet 0x64 "OpenWindow"
     [ PF.windowID "window"
@@ -333,9 +281,7 @@ packetType "ServerPacket"
     ]
     -- Identical to the client version.
   , packet 0x82 "UpdateSign"
-    [ PF.int "x"
-    , PF.short "y"
-    , PF.int "z"
+    [ PF.blockPosShortY "blockPos"
     , PF.string "line1"
     , PF.string "line2"
     , PF.string "line3"
