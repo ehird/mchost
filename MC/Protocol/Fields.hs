@@ -12,6 +12,9 @@ module MC.Protocol.Fields
   , bool
   , point
   , intPoint
+  , blockPos
+  , blockPosShortY
+  , blockPosIntY
   , chunkPos
   , entityID
   , worldID
@@ -40,6 +43,7 @@ import MC.Protocol.Template
 import Data.Int
 import Data.Word
 import Data.Text (Text)
+import Data.Serialize (Get, Putter)
 import qualified Data.Serialize as SE
 import qualified Data.Serialize.IEEE754 as SE754
 import Language.Haskell.TH
@@ -108,6 +112,30 @@ intPoint name = FieldInfo
   , fieldName = name
   , fieldGet  = [| getIntPoint |]
   , fieldPut  = [| putIntPoint |]
+  }
+
+blockPos :: String -> FieldInfo
+blockPos name = FieldInfo
+  { fieldType = [t| Point |]
+  , fieldName = name
+  , fieldGet  = [| getBlockPosWithY (SE.get :: Get Int8) |]
+  , fieldPut  = [| putBlockPosWithY (SE.put :: Putter Int8) |]
+  }
+
+blockPosShortY :: String -> FieldInfo
+blockPosShortY name = FieldInfo
+  { fieldType = [t| Point |]
+  , fieldName = name
+  , fieldGet  = [| getBlockPosWithY (SE.get :: Get Int32) |]
+  , fieldPut  = [| putBlockPosWithY (SE.put :: Putter Int32) |]
+  }
+
+blockPosIntY :: String -> FieldInfo
+blockPosIntY name = FieldInfo
+  { fieldType = [t| Point |]
+  , fieldName = name
+  , fieldGet  = [| getBlockPosWithY (SE.get :: Get Int8) |]
+  , fieldPut  = [| putBlockPosWithY (SE.put :: Putter Int8) |]
   }
 
 chunkPos :: String -> FieldInfo

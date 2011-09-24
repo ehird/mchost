@@ -9,6 +9,8 @@ module MC.Protocol.Types
   , pointZ
   , getIntPoint
   , putIntPoint
+  , getBlockPosWithY
+  , putBlockPosWithY
   , PlayerPos(..)
   , playerPosPoint
   , playerPosStance
@@ -109,6 +111,22 @@ putIntPoint (Point x y z) = do
   putCoord y
   putCoord z
   where putCoord = (SE.put :: Putter Int32) . truncate . (* 32)
+
+getBlockPosWithY :: (Integral a) => Get a -> Get Point
+getBlockPosWithY getY = do
+  x <- SE.get :: Get Int32
+  y <- getY
+  z <- SE.get :: Get Int32
+  return $ Point (fromIntegral x) (fromIntegral y) (fromIntegral z)
+
+-- This makes me slightly uneasy, since you could pass a Point that
+-- isn't on a block position. FIXME: Possibly give "non-fractional"
+-- positions their own type?
+putBlockPosWithY :: (Integral a) => Putter a -> Putter Point
+putBlockPosWithY putY (Point x y z) = do
+  SE.put (truncate x :: Int32)
+  putY $ truncate y
+  SE.put (truncate z :: Int32)
 
 data PlayerPos = PlayerPos !Point !Double deriving (Eq, Show)
 
