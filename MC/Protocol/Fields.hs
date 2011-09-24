@@ -10,6 +10,7 @@ module MC.Protocol.Fields
   , double
   , string
   , bool
+  , point
   , chunkPos
   , entityID
   , worldID
@@ -96,6 +97,9 @@ string name = FieldInfo
 
 bool :: String -> FieldInfo
 bool = simpleField [t| Bool |]
+
+point :: String -> FieldInfo
+point = simpleField [t| Point |]
 
 chunkPos :: String -> FieldInfo
 chunkPos = simpleField [t| ChunkPos |]
