@@ -7,6 +7,8 @@ module MC.Protocol.Types
   , pointX
   , pointY
   , pointZ
+  , getIntPoint
+  , putIntPoint
   , PlayerPos(..)
   , playerPosPoint
   , playerPosStance
@@ -96,6 +98,17 @@ pointY (Point _ y _) = y
 
 pointZ :: Point -> Double
 pointZ (Point _ _ z) = z
+
+getIntPoint :: Get Point
+getIntPoint = Point <$> getCoord <*> getCoord <*> getCoord
+  where getCoord = ((/ 32) . fromIntegral) <$> (SE.get :: Get Int32)
+
+putIntPoint :: Putter Point
+putIntPoint (Point x y z) = do
+  putCoord x
+  putCoord y
+  putCoord z
+  where putCoord = (SE.put :: Putter Int32) . truncate . (* 32)
 
 data PlayerPos = PlayerPos !Point !Double deriving (Eq, Show)
 
