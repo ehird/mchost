@@ -25,6 +25,8 @@ module MC.Protocol.Types
   , Direction(..)
   , directionYaw
   , directionPitch
+  , getByteDirection
+  , putByteDirection
   , EntityID(..)
   , getEntityID
   , WorldID(..)
@@ -206,6 +208,16 @@ directionYaw (Direction yaw _) = yaw
 
 directionPitch :: Direction -> Float
 directionPitch (Direction _ pitch) = pitch
+
+getByteDirection :: Get Direction
+getByteDirection = Direction <$> getComponent <*> getComponent
+  where getComponent = ((/ 256) . (* 360) . fromIntegral) <$> SE.getWord8
+
+putByteDirection :: Putter Direction  
+putByteDirection (Direction yaw pitch) = do
+  putComponent yaw
+  putComponent pitch
+  where putComponent = SE.putWord8 . truncate . (/ 360) . (* 256)
 
 newtype EntityID = EntityID Int32 deriving (Eq, Show, Serialize)
 
