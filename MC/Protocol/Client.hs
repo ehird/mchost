@@ -99,7 +99,7 @@ packetType "ClientPacket"
     , PF.bool "isRightClick"
       -- as above... this is a different action to the CEntityAction
       -- packets; it's the same as the Transaction packet
-    , PF.short "actionID" 
+    , PF.short "actionID"
     , PF.bool "shiftHeld"
     , PF.heldItem "item"
     ]
