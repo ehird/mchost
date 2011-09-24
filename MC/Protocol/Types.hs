@@ -7,6 +7,12 @@ module MC.Protocol.Types
   , pointX
   , pointY
   , pointZ
+  , PlayerPos(..)
+  , playerPosPoint
+  , playerPosStance
+  , playerPosX
+  , playerPosY
+  , playerPosZ
   , ChunkPos(..)
   , chunkPosX
   , chunkPosZ
@@ -83,6 +89,23 @@ pointY (Point _ y _) = y
 
 pointZ :: Point -> Double
 pointZ (Point _ _ z) = z
+
+data PlayerPos = PlayerPos !Point !Double deriving (Eq, Show)
+
+playerPosPoint :: PlayerPos -> Point
+playerPosPoint (PlayerPos p _) = p
+
+playerPosStance :: PlayerPos -> Double
+playerPosStance (PlayerPos _ stance) = stance
+
+playerPosX :: PlayerPos -> Double
+playerPosX = pointX . playerPosPoint
+
+playerPosY :: PlayerPos -> Double
+playerPosY = pointY . playerPosPoint
+
+playerPosZ :: PlayerPos -> Double
+playerPosZ = pointZ . playerPosPoint
 
 data ChunkPos = ChunkPos !Int32 !Int32 deriving (Eq, Show)
 
