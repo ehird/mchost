@@ -8,7 +8,6 @@ import qualified MC.Protocol.Server as S
 import Data.ByteString (ByteString)
 import Data.Serialize (Get, Putter)
 import qualified Data.Serialize as SE
-import Data.Text (Text)
 import qualified Data.Text as T
 import Data.IterIO
 import qualified Data.IterIO.Iter as Iter
@@ -35,14 +34,27 @@ handle :: HostName -> PortNumber -> Inum [ClientPacket] [ServerPacket] IO a
 handle clientHost clientPort = mkInumAutoM $ do
   p <- headLI
   case p of
-    C.ServerListPing -> kick "server list"
+    C.ServerListPing -> kick ("server list" :: String)
     C.Handshake name -> do
       _ <- ifeed [S.Handshake (LoggedIn "hello")]
-      kick name
-    _ -> kick "What *are* you?"
-  where kick :: Text -> InumM [ClientPacket] [ServerPacket] IO a ()
-        kick name = do
-          _ <- ifeed [S.Kick $ "ollies outy " `T.append` T.pack (show (name,clientHost,clientPort))]
+      login@C.Login{} <- headLI
+      _ <- ifeed
+        [ S.Login
+            { S.loginEntity      = EntityID 42
+            , S.loginUnused      = ""
+            , S.loginMapSeed     = 0xFACADE
+            , S.loginIsCreative  = 1
+            , S.loginWorld       = WorldID 0
+            , S.loginDifficulty  = Peaceful
+            , S.loginWorldHeight = 128
+            , S.loginMaxPlayers  = 1
+            }
+        ]
+      kick (name, C.loginName login, C.loginVersion login)
+    _ -> kick ("What *are* you?" :: String)
+  where kick :: (Show t) => t -> InumM [ClientPacket] [ServerPacket] IO a ()
+        kick info = do
+          _ <- ifeed [S.Kick $ "ollies outy " `T.append` T.pack (show (info,clientHost,clientPort))]
           return ()
 
 serverLoop :: Socket -> IO ()
