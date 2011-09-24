@@ -81,6 +81,13 @@ putTextUTF16be text = do
 
 data Point = Point !Double !Double !Double deriving (Eq, Show)
 
+instance Serialize Point where
+  get = Point <$> SE754.getFloat64be <*> SE754.getFloat64be <*> SE754.getFloat64be
+  put (Point x y z) = do
+    SE754.putFloat64be x
+    SE754.putFloat64be y
+    SE754.putFloat64be z
+
 pointX :: Point -> Double
 pointX (Point x _ _) = x
 
