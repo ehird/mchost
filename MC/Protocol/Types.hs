@@ -27,6 +27,11 @@ module MC.Protocol.Types
   , directionPitch
   , getByteDirection
   , putByteDirection
+  , Orientation(..)
+  , orientationDirection
+  , orientationRoll
+  , orientationYaw
+  , orientationPitch
   , EntityID(..)
   , getEntityID
   , WorldID(..)
@@ -218,6 +223,20 @@ putByteDirection (Direction yaw pitch) = do
   putComponent yaw
   putComponent pitch
   where putComponent = SE.putWord8 . truncate . (/ 360) . (* 256)
+
+data Orientation = Orientation !Direction !Float deriving (Eq, Show)
+
+orientationDirection :: Orientation -> Direction
+orientationDirection (Orientation dir _) = dir
+
+orientationRoll :: Orientation -> Float
+orientationRoll (Orientation _ roll) = roll
+
+orientationYaw :: Orientation -> Float
+orientationYaw = directionYaw . orientationDirection
+
+orientationPitch :: Orientation -> Float
+orientationPitch = directionPitch . orientationDirection
 
 newtype EntityID = EntityID Int32 deriving (Eq, Show, Serialize)
 
