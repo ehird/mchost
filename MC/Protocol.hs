@@ -1,9 +1,9 @@
 module MC.Protocol
-  ( module MC.Protocol.Types
-  , module MC.Protocol.Client
-  , module MC.Protocol.Server
+  ( ClientPacket
+  , ServerPacket
+  , module MC.Protocol.Types
   ) where
 
 import MC.Protocol.Types
-import MC.Protocol.Client
-import MC.Protocol.Server
+import MC.Protocol.Client (ClientPacket)
+import MC.Protocol.Server (ServerPacket)

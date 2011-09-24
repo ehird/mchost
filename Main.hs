@@ -3,6 +3,8 @@
 module Main where
 
 import MC.Protocol
+import qualified MC.Protocol.Client as C
+import qualified MC.Protocol.Server as S
 import Data.ByteString (ByteString)
 import Data.Serialize (Get, Putter)
 import qualified Data.Serialize as SE
@@ -33,14 +35,14 @@ handle :: HostName -> PortNumber -> Inum [ClientPacket] [ServerPacket] IO a
 handle clientHost clientPort = mkInumAutoM $ do
   p <- headLI
   case p of
-    CServerListPing -> kick "server list"
-    CHandshake name -> do
-      _ <- ifeed [SHandshake (LoggedIn "hello")]
+    C.ServerListPing -> kick "server list"
+    C.Handshake name -> do
+      _ <- ifeed [S.Handshake (LoggedIn "hello")]
       kick name
     _ -> kick "What *are* you?"
   where kick :: Text -> InumM [ClientPacket] [ServerPacket] IO a ()
         kick name = do
-          _ <- ifeed [SKick $ "ollies outy " `T.append` T.pack (show (name,clientHost,clientPort))]
+          _ <- ifeed [S.Kick $ "ollies outy " `T.append` T.pack (show (name,clientHost,clientPort))]
           return ()
 
 serverLoop :: Socket -> IO ()
