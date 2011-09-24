@@ -130,6 +130,19 @@ putBlockPosWithY putY (Point x y z) = do
 
 data PlayerPos = PlayerPos !Point !Double deriving (Eq, Show)
 
+instance Serialize PlayerPos where
+  get = do
+    x <- SE754.getFloat64be
+    y <- SE754.getFloat64be
+    stance <- SE754.getFloat64be
+    z <- SE754.getFloat64be
+    return (PlayerPos (Point x y z) stance)
+  put (PlayerPos (Point x y z) stance) = do
+    SE754.putFloat64be x
+    SE754.putFloat64be y
+    SE754.putFloat64be stance
+    SE754.putFloat64be z
+
 playerPosPoint :: PlayerPos -> Point
 playerPosPoint (PlayerPos p _) = p
 

@@ -15,6 +15,7 @@ module MC.Protocol.Fields
   , blockPos
   , blockPosShortY
   , blockPosIntY
+  , playerPos
   , chunkPos
   , entityID
   , worldID
@@ -137,6 +138,9 @@ blockPosIntY name = FieldInfo
   , fieldGet  = [| getBlockPosWithY (SE.get :: Get Int8) |]
   , fieldPut  = [| putBlockPosWithY (SE.put :: Putter Int8) |]
   }
+
+playerPos :: String -> FieldInfo
+playerPos = simpleField [t| PlayerPos |]
 
 chunkPos :: String -> FieldInfo
 chunkPos = simpleField [t| ChunkPos |]
