@@ -166,7 +166,7 @@ packetType "ServerPacket"
     ]
   , packet 0x1F "EntityRelativeMove"
     [ PF.entityID "entity"
-      -- These should possibly use the same type as SEntityVelocity,
+      -- These should possibly use the same type as S.EntityVelocity,
       -- but they're a different size, and represent a difference, not
       -- a velocity, so maybe not. (Even if the difference between the
       -- two is questionable, the entity velocity packets are relative
@@ -179,7 +179,7 @@ packetType "ServerPacket"
     [ PF.entityID "entity"
       -- These are as a fraction of 360, apparently, so there are at
       -- least two formats for yaw and pitch. TODO: Figure out which
-      -- one SNamedEntitySpawn uses.
+      -- one S.NamedEntitySpawn uses.
     , PF.byte "yaw"
     , PF.byte "pitch"
     ]
@@ -189,7 +189,7 @@ packetType "ServerPacket"
     , PF.byte "dx"
     , PF.byte "dy"
     , PF.byte "dz"
-      -- Same format as SEntityLook
+      -- Same format as S.EntityLook
     , PF.byte "yaw"
     , PF.byte "pitch"
     ]
@@ -198,7 +198,7 @@ packetType "ServerPacket"
     , PF.int "x"
     , PF.int "y"
     , PF.int "z"
-      -- Same format as SEntityLook
+      -- Same format as S.EntityLook
     , PF.byte "yaw"
     , PF.byte "pitch"
     ]
@@ -214,7 +214,7 @@ packetType "ServerPacket"
     ]
   , packet 0x28 "EntityMetadata"
     [ PF.entityID "entity"
-      -- as SMobSpawn; maybe rename this too?
+      -- as S.MobSpawn; maybe rename this too?
     , PF.entityData "metadata"
     ]
   , packet 0x29 "EntityEffect"

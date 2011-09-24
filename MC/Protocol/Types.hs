@@ -172,7 +172,8 @@ playerPosY = pointY . playerPosPoint
 playerPosZ :: PlayerPos -> Double
 playerPosZ = pointZ . playerPosPoint
 
--- See the comments on SPlayerPositionLook for an explanation of this.
+-- See the comments on S.PlayerPositionLook for an explanation of
+-- this.
 getPlayerPosXSYZ :: Get PlayerPos
 getPlayerPosXSYZ = do
   x <- SE754.getFloat64be

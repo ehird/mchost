@@ -97,7 +97,7 @@ packetType "ClientPacket"
     [ PF.windowID "window"
     , PF.short "slot"
     , PF.bool "isRightClick"
-      -- as above... this is a different action to the CEntityAction
+      -- as above... this is a different action to the C.EntityAction
       -- packets; it's the same as the Transaction packet
     , PF.short "actionID"
     , PF.bool "shiftHeld"
@@ -105,7 +105,7 @@ packetType "ClientPacket"
     ]
   , packet 0x6A "Transaction"
     [ PF.windowID "window"
-    , PF.short "actionID" -- see CWindowClick
+    , PF.short "actionID" -- see C.WindowClick
     , PF.bool "accepted"
     ]
   , packet 0x82 "UpdateSign"
