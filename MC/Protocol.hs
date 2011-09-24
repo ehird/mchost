@@ -354,8 +354,7 @@ packetType "ServerPacket"
     , PF.short "totalExperience"
     ]
   , packet 0x32 "SPreChunk"
-    [ PF.int "x"
-    , PF.int "z"
+    [ PF.chunkPos "chunkPos"
       -- This should have its own type. "If mode is 0 the client will
       -- unload the chunk, otherwise the client will initialize the
       -- chunk"
@@ -373,8 +372,7 @@ packetType "ServerPacket"
     ]
     -- This packet is completely awful.
   , packet 0x34 "SMultiBlockChange"
-    [ PF.int "chunkX"
-    , PF.int "chunkY"
+    [ PF.chunkPos "chunkPos"
     , PF.multiBlockChangeData "data"
     ]
   , packet 0x35 "SBlockChange"
