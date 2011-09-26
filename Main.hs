@@ -1,6 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Main where
+module Main
+  ( main
+  ) where
 
 import MC.Protocol
 import qualified MC.Protocol.Client as C
