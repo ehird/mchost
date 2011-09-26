@@ -201,8 +201,9 @@ packetType "ServerPacket"
     , PF.bool "mode"
     ]
   , packet 0x33 "MapChunk"
-    [ PF.blockPosShortY "topLeftBlockPos"
-      -- These are the real size minus 1.
+    [ -- This is the block position of the least-X, least-Y, least-Z
+      -- block in the data being sent.
+      PF.blockPosShortY "point"
     , PF.byte "xSize"
     , PF.byte "ySize"
     , PF.byte "zSize"
