@@ -9,7 +9,8 @@ import qualified MC.Protocol.Fields as PF
 
 packetType "ServerPacket"
   [ packet 0x00 "KeepAlive"
-    [ PF.int "id" ]
+    [ PF.int "id"
+    ]
   , packet 0x01 "Login"
     [ PF.entityID "entity"
     , PF.string "unused"
