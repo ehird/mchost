@@ -9,7 +9,7 @@ import qualified MC.Protocol.Fields as PF
 
 packetType "ClientPacket"
   [ packet 0x00 "KeepAlive"
-    [ PF.int "id"
+    [ PF.int "cookie"
     ]
   , packet 0x01 "Login"
     [ PF.int "version"
