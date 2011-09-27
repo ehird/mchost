@@ -1,4 +1,4 @@
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TemplateHaskell, DeriveGeneric #-}
 
 module MC.Protocol.Client
   ( ClientPacket(..)
@@ -105,6 +105,6 @@ packetType "ClientPacket"
     ]
   , packet 0xFE "ServerListPing" []
   , packet 0xFF "Disconnect"
-    [ PF.string "unused"
+    [ PF.string "reason"
     ]
   ]
