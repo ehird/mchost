@@ -1,4 +1,4 @@
-{-# LANGUAGE TemplateHaskell, DeriveGeneric #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module MC.Protocol.Client
   ( ClientPacket(..)
