@@ -131,16 +131,16 @@ blockPosShortY :: String -> FieldInfo
 blockPosShortY name = FieldInfo
   { fieldType = [t| Point |]
   , fieldName = name
-  , fieldGet  = [| getBlockPosWithY (SE.get :: Get Int32) |]
-  , fieldPut  = [| putBlockPosWithY (SE.put :: Putter Int32) |]
+  , fieldGet  = [| getBlockPosWithY (SE.get :: Get Int16) |]
+  , fieldPut  = [| putBlockPosWithY (SE.put :: Putter Int16) |]
   }
 
 blockPosIntY :: String -> FieldInfo
 blockPosIntY name = FieldInfo
   { fieldType = [t| Point |]
   , fieldName = name
-  , fieldGet  = [| getBlockPosWithY (SE.get :: Get Int8) |]
-  , fieldPut  = [| putBlockPosWithY (SE.put :: Putter Int8) |]
+  , fieldGet  = [| getBlockPosWithY (SE.get :: Get Int32) |]
+  , fieldPut  = [| putBlockPosWithY (SE.put :: Putter Int32) |]
   }
 
 playerPos :: String -> FieldInfo
