@@ -267,6 +267,11 @@ packetType "ServerPacket"
     [ PF.windowID "window" -- as above
     , PF.windowItems "items"
     ]
+  , packet 0x69 "UpdateProgressBar"
+    [ PF.windowID "window" -- as above, I think
+    , PF.short "bar" -- should have its own type...
+    , PF.short "value"
+    ]
   , packet 0x6A "Transaction"
     [ PF.windowID "window" -- probably as above; not sure
     , PF.short "actionID" -- should have its own type, as (far) above
