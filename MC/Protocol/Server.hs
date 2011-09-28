@@ -277,15 +277,6 @@ packetType "ServerPacket"
     , PF.short "actionID" -- should have its own type, as (far) above
     , PF.bool "accepted"
     ]
-  , packet 0x6B "CreativeInventoryAction"
-    [ PF.short "slot"
-      -- These should really go into a type, but the amount and damage
-      -- fields are always sent, even when the item is -1, unlike
-      -- every other instance. Sigh.
-    , PF.short "item"
-    , PF.short "itemAmount"
-    , PF.short "itemMetadata"
-    ]
     -- Identical to the client version.
   , packet 0x82 "UpdateSign"
     [ PF.blockPosShortY "blockPos"
