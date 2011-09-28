@@ -114,7 +114,7 @@ packetType "ServerPacket"
   , packet 0x19 "PaintingSpawn"
     [ PF.entityID "entity"
     , PF.string "title"
-    , PF.blockPos "centrePos"
+    , PF.blockPosIntY "centrePos"
     , PF.int "direction" -- should have its own type
     ]
   , packet 0x1A "ExperienceOrbSpawn"
