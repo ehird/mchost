@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings, GeneralizedNewtypeDeriving #-}
 
 module MC.Protocol.Types
-  ( getTextUTF16be
+  ( Packet(..)
+  , getTextUTF16be
   , putTextUTF16be
   , Point(..)
   , pointX
@@ -81,6 +82,10 @@ import qualified Data.Serialize as SE
 import qualified Data.Serialize.IEEE754 as SE754
 import Control.Applicative
 import Control.Monad
+
+class Packet a where
+  packetName :: a -> String
+  packetShowsFieldsPrec :: Int -> a -> [(String,ShowS)]
 
 getTextUTF16be :: Get Text
 getTextUTF16be = do

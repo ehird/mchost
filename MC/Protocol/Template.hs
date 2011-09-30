@@ -7,6 +7,8 @@ module MC.Protocol.Template
   , packetType
   ) where
 
+import MC.Protocol.Types
+
 import Numeric
 import Data.Word
 import Data.Char
@@ -31,6 +33,10 @@ packet ptype strName = Packet ptype (mkName strName)
 packetType :: String -> [PacketInfo] -> Q [Dec]
 packetType strName packets =
   sequence [ dataD (return []) name [] (map packetCon packets) [''Eq, ''Show]
+           , instanceD (return []) (appT (conT ''Packet) (conT name))
+             [ funD 'packetName $ map nameClause packets
+             , funD 'packetShowsFieldsPrec $ map fieldsClause packets
+             ]
            , instanceD (return []) (appT (conT ''Serialize) (conT name))
              [ funD 'SE.get [clause [] (normalB (getExp packets)) []]
              , funD 'SE.put $ map putClause packets
@@ -44,6 +50,15 @@ packetType strName packets =
         mkFieldName pname "" = error $ "Empty field name in packet " ++ show pname
         prefix pname fname = mkName (toLower p : ps ++ fname)
           where p:ps = nameBase pname
+        nameClause (Packet _ pname _) = clause [recP pname []] (normalB (litE (stringL (nameBase pname)))) []
+        -- empty fields case to silence warnings about "prec" being unused
+        fieldsClause (Packet _ pname []) = clause [wildP, conP pname []] (normalB (listE [])) []
+        fieldsClause (Packet _ pname fields) = do
+          precVar <- newName "prec"
+          vars <- mapM (newName . fieldName) fields
+          let nameLits = map (stringL . fieldName) fields
+          clause [varP precVar, conP pname (map varP vars)]
+            (normalB (listE [ tupE [litE nameLit, [| showsPrec $(varE precVar) $(varE var) |] ] | (var,nameLit) <- zip vars nameLits ])) []
         getExp xs = do
           typeVar <- newName "t"
           unboxedTypeVar <- newName "t#"
