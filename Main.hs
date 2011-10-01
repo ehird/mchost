@@ -32,7 +32,7 @@ getI m = mkInum $ loop (SE.runGetPartial m)
 enumPut :: (Monad m, Show t) => Putter t -> Inum [t] ByteString m a
 enumPut f = mkInum (SE.runPut . mapM_ f <$> dataI)
 
-handle :: HostName -> PortNumber -> Inum [ClientPacket] [ServerPacket] IO a
+handle :: (MonadIO m) => HostName -> PortNumber -> Inum [ClientPacket] [ServerPacket] m a
 handle clientHost clientPort = mkInumAutoM $ do
   p <- headLI
   case p of
@@ -54,7 +54,7 @@ handle clientHost clientPort = mkInumAutoM $ do
         ]
       kick (name, C.loginName login, C.loginVersion login)
     _ -> kick ("What *are* you?" :: String)
-  where kick :: (Show t) => t -> InumM [ClientPacket] [ServerPacket] IO a ()
+  where kick :: (MonadIO m, Show t) => t -> InumM [ClientPacket] [ServerPacket] m a ()
         kick info = do
           _ <- ifeed [S.Kick $ "ollies outy " `T.append` T.pack (show (info,clientHost,clientPort))]
           return ()
