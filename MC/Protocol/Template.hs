@@ -45,11 +45,9 @@ packetType strName packets =
   where name = mkName strName
         packetCon (Packet _ pname fields) = recC pname $ map (packetField pname) fields
         packetField pname fi = (,,) (mkFieldName pname (fieldName fi)) IsStrict <$> fieldType fi
-        mkFieldName pname "id" = prefix pname "ID"
-        mkFieldName pname (f:fs) = prefix pname (toUpper f : fs)
-        mkFieldName pname "" = error $ "Empty field name in packet " ++ show pname
-        prefix pname fname = mkName (toLower p : ps ++ fname)
+        mkFieldName pname (f:fs) = mkName (toLower p : ps ++ toUpper f : fs)
           where p:ps = nameBase pname
+        mkFieldName pname "" = error $ "Empty field name in packet " ++ show pname
         nameClause (Packet _ pname _) = clause [recP pname []] (normalB (litE (stringL (nameBase pname)))) []
         -- empty fields case to silence warnings about "prec" being unused
         fieldsClause (Packet _ pname []) = clause [wildP, conP pname []] (normalB (listE [])) []
