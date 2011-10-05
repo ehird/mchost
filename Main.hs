@@ -9,6 +9,7 @@ import qualified MC.Protocol.Client as C
 import qualified MC.Protocol.Server as S
 import MC.Utils
 
+import Prelude hiding (catch)
 import Data.ByteString (ByteString)
 import Data.Serialize (Get, Putter)
 import qualified Data.Serialize as SE
@@ -18,6 +19,7 @@ import qualified Data.IterIO.Iter as Iter
 import Control.Applicative
 import Control.Monad
 import Control.Monad.IO.Class
+import Control.Exception
 import Control.Concurrent
 import System.IO
 import System.Environment
@@ -85,16 +87,31 @@ acceptConn server = do
     , connPort       = clientPort
     }
 
+showConnAddress :: ConnInfo -> ShowS
+showConnAddress conn =
+  showString (connHost conn) .
+  showChar ':' .
+  shows (connPort conn)
+
+showNetPacket :: (Packet a) => ConnInfo -> Char -> a -> ShowS
+showNetPacket conn sym p = showString ((cutoff "..." width . line) "") . showString "\n"
+  where width = 128
+        line = showConnAddress conn . showChar ' '. showChar sym . showChar ' ' . showPacketInline p
+
 serverLoop :: Socket -> IO ()
 serverLoop server = forever $ do
   conn <- acceptConn server
-  putStrLn $ "Handling connection from " ++ show (connHost conn, connPort conn)
-  forkIO $ Iter.run (iter conn)
+  putLogLn conn "Starting connection."
+  forkIO $ Iter.run (iter conn) `finally` finish conn
   where iter conn = connEnumClient conn
                  .| getI SE.get
+                 .| inumTee (showsI (showNetPacket conn '<') .| stdoutI)
                  .| serve conn
+                 .| inumTee (showsI (showNetPacket conn '>') .| stdoutI)
                  .| enumPut SE.put
                  .| connClientI conn
+        finish conn = putLogLn conn "Finishing connection."
+        putLogLn conn = putStrLn . showConnAddress conn . showString " - "
 
 analyse :: (Packet a, Show a) => Get a -> FilePath -> IO ()
 analyse get filename = withBinaryFile filename ReadMode $ \h ->
