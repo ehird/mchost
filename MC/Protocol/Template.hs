@@ -11,7 +11,6 @@ import MC.Protocol.Types
 
 import Numeric
 import Data.Word
-import Data.Char
 import Data.Serialize (Serialize, Get)
 import qualified Data.Serialize as SE
 import Control.Applicative
@@ -45,9 +44,7 @@ packetType strName packets =
   where name = mkName strName
         packetCon (Packet _ pname fields) = recC pname $ map (packetField pname) fields
         packetField pname fi = (,,) (mkFieldName pname (fieldName fi)) IsStrict <$> fieldType fi
-        mkFieldName pname (f:fs) = mkName (toLower p : ps ++ toUpper f : fs)
-          where p:ps = nameBase pname
-        mkFieldName pname "" = error $ "Empty field name in packet " ++ show pname
+        mkFieldName pname fname = mkName $ prefixFieldName (nameBase pname) fname
         nameClause (Packet _ pname _) = clause [recP pname []] (normalB (litE (stringL (nameBase pname)))) []
         -- empty fields case to silence warnings about "prec" being unused
         fieldsClause (Packet _ pname []) = clause [wildP, conP pname []] (normalB (listE [])) []

@@ -2,6 +2,7 @@
 
 module MC.Protocol.Types
   ( Packet(..)
+  , prefixFieldName
   , getTextUTF16be
   , putTextUTF16be
   , Point(..)
@@ -72,6 +73,7 @@ module MC.Protocol.Types
 import Data.Int
 import Data.Word
 import Data.Bits
+import Data.Char
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as B
 import Data.Text (Text)
@@ -86,6 +88,11 @@ import Control.Monad
 class Packet a where
   packetName :: a -> String
   packetShowsFieldsPrec :: Int -> a -> [(String,ShowS)]
+
+prefixFieldName :: String -> String -> String
+prefixFieldName cs "" = error $ "prefixFieldName " ++ show cs ++ "\"\""
+prefixFieldName "" fs = error $ "prefixFieldName \"\" " ++ show fs
+prefixFieldName (c:cs) (f:fs) = toLower c : cs ++ toUpper f : fs
 
 getTextUTF16be :: Get Text
 getTextUTF16be = do
