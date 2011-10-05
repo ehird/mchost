@@ -16,6 +16,7 @@ import qualified Data.Text as T
 import Data.IterIO
 import qualified Data.IterIO.Iter as Iter
 import Control.Applicative
+import Control.Monad
 import Control.Monad.IO.Class
 import Control.Concurrent
 import System.IO
@@ -38,8 +39,15 @@ enumPut f = mkInum (SE.runPut . mapM_ f <$> dataI)
 showsI :: (Monad m, Show t) => (t -> ShowS) -> Inum [t] String m a
 showsI disp = mkInum $ fmapI (\xs -> showConcatMap disp xs "") dataI
 
-handle :: (MonadIO m) => HostName -> PortNumber -> Inum [ClientPacket] [ServerPacket] m a
-handle clientHost clientPort = mkInumAutoM $ do
+data ConnInfo = ConnInfo
+  { connClientI    :: Iter ByteString IO ()
+  , connEnumClient :: Onum ByteString IO ()
+  , connHost       :: HostName
+  , connPort       :: PortNumber
+  }
+
+handle :: (MonadIO m) => ConnInfo -> Inum [ClientPacket] [ServerPacket] m a
+handle conn = mkInumAutoM $ do
   p <- headLI
   case p of
     C.ServerListPing -> kick ("server list" :: String)
@@ -62,23 +70,31 @@ handle clientHost clientPort = mkInumAutoM $ do
     _ -> kick ("What *are* you?" :: String)
   where kick :: (MonadIO m, Show t) => t -> InumM [ClientPacket] [ServerPacket] m a ()
         kick info = do
-          _ <- ifeed [S.Kick $ "ollies outy " `T.append` T.pack (show (info,clientHost,clientPort))]
+          _ <- ifeed [S.Kick $ "ollies outy " `T.append` T.pack (show (info, connHost conn, connPort conn))]
           return ()
 
+acceptConn :: Socket -> IO ConnInfo
+acceptConn server = do
+  (client, clientHost, clientPort) <- accept server
+  hSetBuffering client NoBuffering
+  (clientI, enumClient) <- iterHandle client
+  return ConnInfo
+    { connClientI    = clientI
+    , connEnumClient = enumClient
+    , connHost       = clientHost
+    , connPort       = clientPort
+    }
+
 serverLoop :: Socket -> IO ()
-serverLoop server = loop
-  where loop = do
-          (client, clientHost, clientPort) <- accept server
-          hSetBuffering client NoBuffering
-          (clientI, enumClient) <- iterHandle client
-          putStrLn $ "Handling connection from " ++ show (clientHost,clientPort)
-          _ <- forkIO . Iter.run
-             $ enumClient
-            .| getI SE.get
-            .| handle clientHost clientPort
-            .| enumPut SE.put
-            .| clientI
-          loop
+serverLoop server = forever $ do
+  conn <- acceptConn server
+  putStrLn $ "Handling connection from " ++ show (connHost conn, connPort conn)
+  forkIO $ Iter.run (iter conn)
+  where iter conn = connEnumClient conn
+                 .| getI SE.get
+                 .| handle conn
+                 .| enumPut SE.put
+                 .| connClientI conn
 
 analyse :: (Packet a, Show a) => Get a -> FilePath -> IO ()
 analyse get filename = withBinaryFile filename ReadMode $ \h ->
