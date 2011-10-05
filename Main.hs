@@ -7,6 +7,8 @@ module Main
 import MC.Protocol
 import qualified MC.Protocol.Client as C
 import qualified MC.Protocol.Server as S
+import MC.Utils
+
 import Data.ByteString (ByteString)
 import Data.Serialize (Get, Putter)
 import qualified Data.Serialize as SE
@@ -32,6 +34,9 @@ getI m = mkInum $ loop (SE.runGetPartial m)
 
 enumPut :: (Monad m, Show t) => Putter t -> Inum [t] ByteString m a
 enumPut f = mkInum (SE.runPut . mapM_ f <$> dataI)
+
+showsI :: (Monad m, Show t) => (t -> ShowS) -> Inum [t] String m a
+showsI disp = mkInum $ fmapI (\xs -> showConcatMap disp xs "") dataI
 
 handle :: (MonadIO m) => HostName -> PortNumber -> Inum [ClientPacket] [ServerPacket] m a
 handle clientHost clientPort = mkInumAutoM $ do
@@ -75,12 +80,19 @@ serverLoop server = loop
             .| clientI
           loop
 
+analyse :: (Packet a, Show a) => Get a -> FilePath -> IO ()
+analyse get filename = withBinaryFile filename ReadMode $ \h ->
+  Iter.run $ enumHandle h .| getI get .| showsI (\p -> showPacketInline p . showString "\n") .| stdoutI
+
 main :: IO ()
-main = withSocketsDo $ do
+main = do
   args <- getArgs
-  port <- case map reads args of
-    [[(n,"")]] -> return $ fromIntegral (n :: Int)
-    _ -> hPutStrLn stderr "usage: mchost <port>" >> exitFailure
-  server <- listenOn (PortNumber port)
-  putStrLn $ "Listening on port " ++ show port ++ "..."
-  serverLoop server
+  case args of
+    ["--analyse-client", filename] -> analyse (SE.get :: Get ClientPacket) filename
+    ["--analyse-server", filename] -> analyse (SE.get :: Get ServerPacket) filename
+    [ns] | [(n,"")] <- reads ns -> withSocketsDo $ do
+      let port = fromIntegral (n :: Int) :: PortNumber
+      server <- listenOn (PortNumber port)
+      putStrLn $ "Listening on port " ++ show port ++ "..."
+      serverLoop server
+    _ -> hPutStrLn stderr "usage: mchost {<port> | --analyse-{client|server} <filename>}" >> exitFailure
