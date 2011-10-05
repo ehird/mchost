@@ -3,6 +3,8 @@
 module MC.Protocol.Types
   ( Packet(..)
   , prefixFieldName
+  , showPacketInline
+  , showPacketRecord
   , getTextUTF16be
   , putTextUTF16be
   , Point(..)
@@ -70,6 +72,8 @@ module MC.Protocol.Types
   , ServerHandshake(..)
   ) where
 
+import MC.Utils
+
 import Data.Int
 import Data.Word
 import Data.Bits
@@ -93,6 +97,20 @@ prefixFieldName :: String -> String -> String
 prefixFieldName cs "" = error $ "prefixFieldName " ++ show cs ++ "\"\""
 prefixFieldName "" fs = error $ "prefixFieldName \"\" " ++ show fs
 prefixFieldName (c:cs) (f:fs) = toLower c : cs ++ toUpper f : fs
+
+showPacketInline :: (Packet a) => a -> ShowS
+showPacketInline p =
+  showString (packetName p) .
+  showConcatMap (\(_,f) -> showString " " . f) (packetShowsFieldsPrec 11 p)
+
+showPacketRecord :: (Packet a) => a -> ShowS
+showPacketRecord p =
+  showString (packetName p) .
+  showFields '{' ',' (showString "\n  }") (packetShowsFieldsPrec 0 p)
+  where showField c x = showString "\n  " . showChar c . showChar ' ' . showField' x
+        showField' (name,f) = showString (prefixFieldName (packetName p) name) . showString " = " . f
+        showFields _ _ _ [] = id
+        showFields start mid end (x:xs) = showField start x . showConcatMap (showField mid) xs . end
 
 getTextUTF16be :: Get Text
 getTextUTF16be = do
