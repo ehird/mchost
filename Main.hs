@@ -14,6 +14,7 @@ import qualified Data.Text as T
 import Data.IterIO
 import qualified Data.IterIO.Iter as Iter
 import Control.Applicative
+import Control.Monad.IO.Class
 import Control.Concurrent
 import System.IO
 import System.Environment
