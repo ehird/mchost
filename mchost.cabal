@@ -26,5 +26,6 @@ executable mchost
     cereal == 0.3.*,
     cereal-ieee754 == 0.1.*,
     text == 0.11.*,
-    iterIO == 0.2.*
+    iterIO == 0.2.*,
+    zlib-bindings == 0.0.*
   ghc-options: -Wall -funbox-strict-fields
