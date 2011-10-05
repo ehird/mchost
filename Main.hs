@@ -46,8 +46,8 @@ data ConnInfo = ConnInfo
   , connPort       :: PortNumber
   }
 
-handle :: (MonadIO m) => ConnInfo -> Inum [ClientPacket] [ServerPacket] m a
-handle conn = mkInumAutoM $ do
+serve :: (MonadIO m) => ConnInfo -> Inum [ClientPacket] [ServerPacket] m a
+serve conn = mkInumAutoM $ do
   p <- headLI
   case p of
     C.ServerListPing -> kick ("server list" :: String)
@@ -92,7 +92,7 @@ serverLoop server = forever $ do
   forkIO $ Iter.run (iter conn)
   where iter conn = connEnumClient conn
                  .| getI SE.get
-                 .| handle conn
+                 .| serve conn
                  .| enumPut SE.put
                  .| connClientI conn
 
